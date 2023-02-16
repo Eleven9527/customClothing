@@ -1,0 +1,9 @@
+[db]
+#数据库目标
+dsn="root:123456@tcp(127.0.0.1:3306)/customClothing?parseTime=True&loc=Local"
+#最大空闲连接数
+maxIdle=10
+#最大连接数
+maxOpen=10
+#日志级别，Silent Err Warn Info，silent不输入任何日志
+level="Info"
