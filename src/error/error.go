@@ -15,6 +15,8 @@ const (
 	USER_UUID_ERROR         = 10017 //uuid长度错误
 	USER_NAME_LENGTH_EEEOR  = 10018 //用户真实姓名长度错误
 	ROLE_NOT_EXIST          = 10019 //角色不存在
+	TOKEN_VERIFY_ERROR      = 10020 //token验证失败
+	USER_NOT_LOGIN          = 10021 //用户未登录
 )
 
 type Error interface {

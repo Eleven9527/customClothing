@@ -11,6 +11,7 @@ type UserService interface {
 	GetAuthCode(c context.Context, req *GetAuthCodeReq) (*GetAuthCodeResp, errors.Error)
 	Login(c context.Context, req *LoginReq) (*LoginResp, errors.Error)
 	Kyc(c context.Context, req *KycReq) (*KycResp, errors.Error)
+	VerifyToken(tk []byte) errors.Error
 }
 
 type UserSvc struct {
@@ -82,4 +83,17 @@ func (u *UserSvc) Kyc(c context.Context, req *KycReq) (*KycResp, errors.Error) {
 	}
 
 	return nil, u.repo.AddKyc(c, &kyc)
+}
+
+func (u *UserSvc) VerifyToken(tk []byte) errors.Error {
+	cacheTk, err := u.cache.GetToken(tk)
+	if err != nil {
+		return err
+	}
+
+	if cacheTk != string(tk) {
+		return errors.New(errors.TOKEN_VERIFY_ERROR, "token验证失败")
+	}
+
+	return nil
 }

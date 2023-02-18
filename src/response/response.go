@@ -12,7 +12,7 @@ type response struct {
 	Data interface{} `json:"data"`
 }
 
-func Resp200(c *gin.Context, err errors.Error, data interface{}) {
+func Success(c *gin.Context, err errors.Error, data interface{}) {
 	res := response{
 		Code: err.Code(),
 		Msg:  err.Msg(),
@@ -28,13 +28,13 @@ func Resp200(c *gin.Context, err errors.Error, data interface{}) {
 	c.Next()
 }
 
-func Resp400(c *gin.Context, code int, msg string) {
+func RespError(httpCode int, c *gin.Context, code int, msg string) {
 	res := response{
 		Code: code,
 		Msg:  msg,
 		Data: nil,
 	}
 
-	c.JSON(http.StatusBadRequest, res)
+	c.JSON(httpCode, res)
 	c.Next()
 }
