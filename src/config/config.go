@@ -27,8 +27,27 @@ type DbConfig struct {
 	Level   string `toml:"level"`
 }
 
+type RedisConfig struct {
+	Addr     string `toml:"addr"`
+	Password string `toml:"password"`
+	DBIndex  int    `toml:"dbindex"`
+	PoolSize int    `toml:"poolSize"`
+	IdleSize int    `toml:"idleConns"`
+}
+
+type TokenConfig struct {
+	Timeout        int64  `toml:"timeout"`
+	CacheKey       string `toml:"cacheKey"`
+	TokenDelimiter string `toml:"tokenDelimiter"`
+	HeaderKey      string `toml:"headerKey"`
+	EncryptKey     string `toml:"encryptKey"`
+	MultiLogin     bool   `toml:"multiLogin"`
+}
+
 type Config struct {
-	DbCfg *DbConfig `toml:"db"`
+	DbCfg    *DbConfig    `toml:"db"`
+	RedisCfg *RedisConfig `toml:"redis"`
+	TokenCfg *TokenConfig `toml:"token"`
 }
 
 func Cfg() *Config {

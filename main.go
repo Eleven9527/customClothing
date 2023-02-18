@@ -3,6 +3,8 @@ package main
 import (
 	"customClothing/src/config"
 	"customClothing/src/db"
+	"customClothing/src/router"
+	"customClothing/src/userService"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -19,6 +21,12 @@ func main() {
 
 	//连接数据库
 	db.InitDb()
+
+	//初始化数据表
+	userService.InitUserServiceDb()
+
+	//注册路由
+	router.RegisterRoutes(r)
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "hello World!")

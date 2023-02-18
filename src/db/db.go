@@ -12,6 +12,11 @@ var (
 )
 
 func Db() *gorm.DB {
+	if db != nil {
+		return db
+	}
+
+	InitDb()
 	return db
 }
 

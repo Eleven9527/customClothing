@@ -1,0 +1,30 @@
+package errors
+
+const (
+	//公用错误码
+	INTERNAL_ERROR      = -1  //内部错误
+	REQ_PARAMETER_ERROR = 400 //参数错误
+
+	//用户模块错误码
+	USER_DISPLAYNAME_LENGTH = 10011 //用户名长度错误
+	USER_PASSWORD_LENGTH    = 10012 //密码长度错误
+	USER_PHONE_ERROR        = 10013 //手机号格式错误
+	USER_EXIST              = 10014 //用户已存在
+	AUTHCODE_ERROR          = 10015 //验证码错误
+	USER_NOT_EXIST          = 10016 //用户不存在
+)
+
+type Error interface {
+}
+
+type error struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+func New(code int, msg string) Error {
+	return error{
+		Code: code,
+		Msg:  msg,
+	}
+}
