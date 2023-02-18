@@ -14,8 +14,8 @@ type response struct {
 
 func Resp200(c *gin.Context, err errors.Error, data interface{}) {
 	res := response{
-		Code: err.Code,
-		Msg:  err.Msg,
+		Code: err.Code(),
+		Msg:  err.Msg(),
 		Data: data,
 	}
 

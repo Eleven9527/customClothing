@@ -1,6 +1,7 @@
 package main
 
 import (
+	"customClothing/src/cache"
 	"customClothing/src/config"
 	"customClothing/src/db"
 	"customClothing/src/router"
@@ -9,18 +10,18 @@ import (
 	"net/http"
 )
 
-const (
-	env string = config.DevFlag //dev=开发环境  prd=生产环境
-)
-
 func main() {
 	r := gin.Default()
 
 	//初始化配置
-	config.InitConfig(env)
+	config.Mode = config.DevFlag
+	config.InitConfig()
 
 	//连接数据库
 	db.InitDb()
+
+	//初始化缓存
+	cache.InitCache()
 
 	//初始化数据表
 	userService.InitUserServiceDb()

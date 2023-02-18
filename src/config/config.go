@@ -6,6 +6,10 @@ import (
 	"os"
 )
 
+var (
+	Mode string //开发环境：dev prd
+)
+
 const (
 	//dev环境
 	DevFlag    = "dev"
@@ -19,6 +23,9 @@ const (
 var (
 	cfg *Config //config实例
 )
+
+type EnvConfig struct {
+}
 
 type DbConfig struct {
 	Dsn     string `toml:"dsn"`
@@ -48,16 +55,22 @@ type Config struct {
 	DbCfg    *DbConfig    `toml:"db"`
 	RedisCfg *RedisConfig `toml:"redis"`
 	TokenCfg *TokenConfig `toml:"token"`
+	EnvCfg   *EnvConfig   `toml:"env"`
 }
 
 func Cfg() *Config {
+	if cfg != nil {
+		return cfg
+	}
+
+	InitConfig()
 	return cfg
 }
 
-func InitConfig(env string) {
+func InitConfig() {
 	cPath := ""
 
-	switch env {
+	switch Mode {
 	case DevFlag:
 		cPath = DevCfgPath
 	case PrdFlag:

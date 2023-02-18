@@ -15,16 +15,26 @@ const (
 )
 
 type Error interface {
+	Code() int
+	Msg() string
 }
 
 type error struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
+	code int    `json:"code"`
+	msg  string `json:"msg"`
 }
 
 func New(code int, msg string) Error {
-	return error{
-		Code: code,
-		Msg:  msg,
+	return &error{
+		code: code,
+		msg:  msg,
 	}
+}
+
+func (e *error) Code() int {
+	return e.code
+}
+
+func (e *error) Msg() string {
+	return e.msg
 }

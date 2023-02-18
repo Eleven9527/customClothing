@@ -1,3 +1,5 @@
+[env]
+
 [db]
     #数据库目标
     dsn = "root:123456@tcp(127.0.0.1:3306)/customClothing?parseTime=True&loc=Local"

@@ -10,10 +10,13 @@ import (
 
 var UserSvc userService.UserService
 
-func init() {
+func RegisterUserHandlers(r *gin.RouterGroup) {
 	UserSvc = userService.MakeUserService()
-}
 
+	r.GET("/authcode", GetAuthCodeHandler) //获取验证码
+	r.POST("", RegisterHandler)            //注册用户
+	r.POST("/login", LoginHandler)         //登录
+}
 func RegisterHandler(c *gin.Context) {
 	req := userService.RegisterUserReq{}
 	if err := c.ShouldBind(&req); err != nil {
@@ -36,7 +39,7 @@ func RegisterHandler(c *gin.Context) {
 	response.Resp200(c, err, resp)
 }
 
-func GetAuthCode(c *gin.Context) {
+func GetAuthCodeHandler(c *gin.Context) {
 	req := userService.GetAuthCodeReq{}
 
 	resp, err := UserSvc.GetAuthCode(c, &req)
@@ -61,4 +64,7 @@ func LoginHandler(c *gin.Context) {
 	if req.AuthCode != "12345" {
 		response.Resp400(c, errors.AUTHCODE_ERROR, "验证码错误")
 	}
+
+	resp, err := UserSvc.Login(c, &req)
+	response.Resp200(c, err, resp)
 }
