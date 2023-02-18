@@ -10,6 +10,8 @@ import (
 type RepoService interface {
 	AddUser(c context.Context, req *RegisterUserReq) (*RegisterUserResp, errors.Error)
 	GetUserByPhone(c context.Context, phone string) (*User, errors.Error)
+	GetRoleByCode(c context.Context, code int) (*Role, errors.Error)
+	AddKyc(c context.Context, req *Kyc) errors.Error
 }
 
 type repoSvc struct {
@@ -51,4 +53,20 @@ func (r *repoSvc) GetUserByPhone(c context.Context, phone string) (*User, errors
 	}
 
 	return &u, nil
+}
+
+func (r *repoSvc) GetRoleByCode(c context.Context, code int) (*Role, errors.Error) {
+	role := &Role{}
+	if err := db.Db().Where("code = ?", code); err != nil {
+		return nil, errors.New(errors.ROLE_NOT_EXIST, "角色不存在")
+	}
+
+	return role, nil
+}
+func (r *repoSvc) AddKyc(c context.Context, k *Kyc) errors.Error {
+	if err := db.Db().Create(k).Error; err != nil {
+		return errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return nil
 }

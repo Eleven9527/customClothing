@@ -10,6 +10,7 @@ type UserService interface {
 	RegisterUser(c context.Context, req *RegisterUserReq) (*RegisterUserResp, errors.Error)
 	GetAuthCode(c context.Context, req *GetAuthCodeReq) (*GetAuthCodeResp, errors.Error)
 	Login(c context.Context, req *LoginReq) (*LoginResp, errors.Error)
+	Kyc(c context.Context, req *KycReq) (*KycResp, errors.Error)
 }
 
 type UserSvc struct {
@@ -57,4 +58,28 @@ func (u *UserSvc) Login(c context.Context, req *LoginReq) (*LoginResp, errors.Er
 		User:  user,
 		Token: string(token),
 	}, nil
+}
+
+func (u *UserSvc) Kyc(c context.Context, req *KycReq) (*KycResp, errors.Error) {
+	role, err := u.repo.GetRoleByCode(c, req.RoleCode)
+	if err != nil {
+		return nil, err
+	}
+
+	//检测用户是否存在
+	_, err = u.repo.GetUserByPhone(c, req.Phone)
+	if err != nil {
+		return nil, err
+	}
+
+	kyc := Kyc{
+		UserId:   req.UserId,
+		Name:     req.Name,
+		Phone:    req.Phone,
+		IdCard:   "", //todo:保存图片到oss，再返回url
+		RoleCode: role.Code,
+		Status:   KYC_STATUS_PENDING,
+	}
+
+	return nil, u.repo.AddKyc(c, &kyc)
 }

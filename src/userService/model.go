@@ -6,6 +6,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// 认证审核状态
+const (
+	KYC_STATUS_PENDING = 1
+	KYC_STATUS_SUCCESS = 2
+	KYC_STATUS_FAIL    = 3
+)
+
 type User struct {
 	UserId      string `json:"userId" gorm:"comment:'用户uuid'"`   //用户uuid
 	DisplayName string `json:"displayName" gorm:"comment:'昵称'"`  //昵称
@@ -25,6 +32,16 @@ type Role struct {
 	gorm.Model
 }
 
+type Kyc struct {
+	UserId   string `json:"userId" gorm:"comment:'用户uuid'"`    //用户uuid
+	Name     string `json:"name" gorm:"comment:'姓名'"`          //姓名
+	Phone    string `json:"phone" gorm:"comment:'手机号'"`        //手机号
+	IdCard   string `json:"idCard" gorm:"comment:'手机号'"`       //身份证照片地址
+	RoleCode int    `json:"roleCode" gorm:"comment:'申请成为的角色'"` //申请成为的角色
+	Status   int    `json:"status" gorm:"comment:'审核状态'"`      //审核状态
+	gorm.Model
+}
+
 func InitUserServiceDb() {
 	if err := db.Db().AutoMigrate(&User{}).Error; err != nil {
 		panic("初始化user表失败:" + err.Error())
@@ -34,7 +51,55 @@ func InitUserServiceDb() {
 	if err := db.Db().AutoMigrate(&Role{}).Error; err != nil {
 		panic("初始化user表失败:" + err.Error())
 	}
+	initRoles()
 	fmt.Println("role表初始化成功!")
+
+	if err := db.Db().AutoMigrate(&Kyc{}).Error; err != nil {
+		panic("初始化Kyc表失败:" + err.Error())
+	}
+	fmt.Println("Kyc表初始化成功!")
+}
+
+func initRoles() {
+	//如果表中有数据，则无需初始化
+	var count int64
+	if err := db.Db().Where("code > -1").Count(&count).Error; err != nil {
+		panic("Role数据初始化失败")
+	}
+
+	if count > 0 {
+		return
+	}
+
+	roles := make([]*Role, 0)
+
+	admin := &Role{
+		Code: 0,
+		Name: "管理员",
+	}
+	roles = append(roles, admin)
+
+	normalUser := &Role{
+		Code: 1,
+		Name: "普通用户",
+	}
+	roles = append(roles, normalUser)
+
+	designer := &Role{
+		Code: 2,
+		Name: "设计师",
+	}
+	roles = append(roles, designer)
+
+	patternMaker := &Role{
+		Code: 3,
+		Name: "版型师",
+	}
+	roles = append(roles, patternMaker)
+
+	if err := db.Db().Create(&roles).Error; err != nil {
+		panic("Role数据初始化失败")
+	}
 }
 
 type RegisterUserReq struct {
@@ -73,4 +138,14 @@ type SetTokenReq struct {
 
 type SetTokenResp struct {
 	Token string
+}
+
+type KycReq struct {
+	UserId   string `json:"userId" gorm:"comment:'用户uuid'"`    //用户uuid
+	Name     string `json:"name" gorm:"comment:'姓名'"`          //姓名
+	Phone    string `json:"phone" gorm:"comment:'手机号'"`        //手机号
+	RoleCode int    `json:"roleCode" gorm:"comment:'申请成为的角色'"` //申请成为的角色
+}
+
+type KycResp struct {
 }

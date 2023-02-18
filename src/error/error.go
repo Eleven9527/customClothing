@@ -12,6 +12,9 @@ const (
 	USER_EXIST              = 10014 //用户已存在
 	AUTHCODE_ERROR          = 10015 //验证码错误
 	USER_NOT_EXIST          = 10016 //用户不存在
+	USER_UUID_ERROR         = 10017 //uuid长度错误
+	USER_NAME_LENGTH_EEEOR  = 10018 //用户真实姓名长度错误
+	ROLE_NOT_EXIST          = 10019 //角色不存在
 )
 
 type Error interface {
