@@ -69,7 +69,7 @@ func InitUserServiceDb() {
 	fmt.Println("user表初始化成功!")
 
 	if err := db.Db().AutoMigrate(&Role{}).Error; err != nil {
-		panic("初始化user表失败:" + err.Error())
+		panic("初始化Role表失败:" + err.Error())
 	}
 	initRoles()
 	fmt.Println("role表初始化成功!")

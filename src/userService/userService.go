@@ -31,7 +31,7 @@ func (u *UserSvc) RegisterUser(c context.Context, req *RegisterUserReq) (*Regist
 
 }
 
-// todo:生成图片验证码
+// GetAuthCode todo:生成图片验证码
 func (u *UserSvc) GetAuthCode(c context.Context, req *GetAuthCodeReq) (*GetAuthCodeResp, errors.Error) {
 	return &GetAuthCodeResp{AuthCode: "12345"}, nil
 }

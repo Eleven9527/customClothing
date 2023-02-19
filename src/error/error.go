@@ -18,6 +18,7 @@ const (
 	TOKEN_VERIFY_ERROR      = 10020 //token验证失败
 	USER_NOT_LOGIN          = 10021 //用户未登录
 	ORDER_NOT_EXIST         = 10022 //订单不存在
+	ORDER_STATUS_ERROR      = 10023 //订单状态错误
 )
 
 type Error interface {

@@ -6,6 +6,14 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const (
+	STATUS_PENDING  = 1 //待接单
+	STATUS_EXPIRED  = 2 //已过期
+	STATUS_PROCESS  = 3 //进行中
+	STATUS_COMPLETE = 4 //已完成
+	STATUS_CANCEL   = 5 //已取消
+)
+
 type Order struct {
 	OrderId              string  `json:"orderId" gorm:"comment:'订单uuid'"`              //订单uuid
 	PartA                string  `json:"partA" gorm:"comment:'甲方uuid'"`                //甲方uuid
@@ -24,11 +32,28 @@ func (Order) TableName() string {
 	return "order"
 }
 
+type Reporter struct {
+	Whistleblower  string `json:"whistleblower" gorm:"comment:'举报人uuid'"`   //举报人uuid
+	ReportedPerson string `json:"reportedPerson" gorm:"comment:'被举报人uuid'"` //被举报人uuid
+	Description    string `json:"description" gorm:"comment:'举报描述'"`        //举报描述
+	OrderId        string `json:"orderId" gorm:"comment:'订单uuid'"`          //订单uuid
+	gorm.Model
+}
+
+func (Reporter) TableName() string {
+	return "reporter"
+}
+
 func InitOrderServiceDb() {
 	if err := db.Db().AutoMigrate(&Order{}).Error; err != nil {
-		panic("初始化Kyc表失败:" + err.Error())
+		panic("初始化Order表失败:" + err.Error())
 	}
 	fmt.Println("Order表初始化成功!")
+
+	if err := db.Db().AutoMigrate(&Reporter{}).Error; err != nil {
+		panic("初始化Reporter表失败:" + err.Error())
+	}
+	fmt.Println("Reporter表初始化成功!")
 }
 
 type ListOrdersReq struct {
@@ -66,4 +91,28 @@ type AddOrderReq struct {
 }
 
 type AddOrderResp struct {
+}
+
+type CancelOrderReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+}
+
+type CancelOrderResp struct {
+}
+
+type ConfirmOrderReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+}
+
+type ConfirmOrderResp struct {
+}
+
+type ReportOrderReq struct {
+	Whistleblower  string `json:"whistleblower" gorm:"comment:'举报人uuid'"`   //举报人uuid
+	ReportedPerson string `json:"reportedPerson" gorm:"comment:'被举报人uuid'"` //被举报人uuid
+	Description    string `json:"description" gorm:"comment:'举报描述'"`        //举报描述
+	OrderId        string `json:"orderId" gorm:"comment:'订单uuid'"`          //订单uuid
+}
+
+type ReportOrderResp struct {
 }

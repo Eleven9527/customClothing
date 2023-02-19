@@ -12,6 +12,9 @@ type RepoService interface {
 	ListOrders(ctx context.Context, req *ListOrdersReq) (*ListOrdersResp, errors.Error)
 	GetSingleOrder(ctx context.Context, req *GetOrderReq) (*GetOrderResp, errors.Error)
 	UpdateCost(ctx context.Context, req *UpdateCostReq) (*UpdateCostResp, errors.Error)
+	CancelOrder(ctx context.Context, req *CancelOrderReq) (*CancelOrderResp, errors.Error)
+	ConfirmOrder(ctx context.Context, req *ConfirmOrderReq) (*ConfirmOrderResp, errors.Error)
+	AddReporter(ctx context.Context, req *ReportOrderReq) (*ReportOrderResp, errors.Error)
 }
 
 type repoSvc struct {
@@ -72,4 +75,45 @@ func (r *repoSvc) UpdateCost(ctx context.Context, req *UpdateCostReq) (*UpdateCo
 	}
 
 	return &UpdateCostResp{}, nil
+}
+
+func (r *repoSvc) CancelOrder(ctx context.Context, req *CancelOrderReq) (*CancelOrderResp, errors.Error) {
+	if err := db.Db().Where("order_id = ?", req.OrderId).Update("status = ?", STATUS_CANCEL).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
+		}
+
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return &CancelOrderResp{}, nil
+}
+
+func (r *repoSvc) ConfirmOrder(ctx context.Context, req *ConfirmOrderReq) (*ConfirmOrderResp, errors.Error) {
+	if err := db.Db().Where("order_id = ?", req.OrderId).Update("status = ?", STATUS_COMPLETE).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
+		}
+
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	//todo:把托管的钱转入乙方钱包
+
+	return &ConfirmOrderResp{}, nil
+}
+
+func (r *repoSvc) AddReporter(ctx context.Context, req *ReportOrderReq) (*ReportOrderResp, errors.Error) {
+	reporter := Reporter{
+		Whistleblower:  req.Whistleblower,
+		ReportedPerson: req.ReportedPerson,
+		Description:    req.Description,
+		OrderId:        req.OrderId,
+	}
+
+	if err := db.Db().Create(&reporter).Error; err != nil {
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return &ReportOrderResp{}, nil
 }
