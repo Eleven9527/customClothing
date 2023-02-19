@@ -10,6 +10,7 @@ import (
 type RepoService interface {
 	AddUser(c context.Context, req *RegisterUserReq) (*RegisterUserResp, errors.Error)
 	GetUserByPhone(c context.Context, phone string) (*User, errors.Error)
+	//GetUserById(c context.Context, id string) (*User, errors.Error)
 	GetRoleByCode(c context.Context, code int) (*Role, errors.Error)
 	AddKyc(c context.Context, req *Kyc) errors.Error
 }
@@ -20,7 +21,7 @@ type repoSvc struct {
 
 func MakeRepoService() RepoService {
 	return &repoSvc{
-		db: db.Db(),
+		db: db.Db().Table(User{}.TableName()),
 	}
 }
 
@@ -28,7 +29,7 @@ func (r *repoSvc) AddUser(c context.Context, req *RegisterUserReq) (*RegisterUse
 	//检查用户是否已存在
 	var count int64
 	if err := r.db.Where("phone = ?", req.Phone).Count(&count); err != nil {
-		return nil, errors.New(errors.USER_EXIST, "")
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 
 	if count > 0 {
@@ -70,3 +71,17 @@ func (r *repoSvc) AddKyc(c context.Context, k *Kyc) errors.Error {
 
 	return nil
 }
+
+// GetUserById 根据uuid获取用户
+//func (r *repoSvc) GetUserById(c context.Context, id string) (*User, errors.Error) {
+//	u := User{}
+//
+//	if err := db.Db().Where("user_id = ?", id).First(&u).Error; err != nil {
+//		if err == gorm.ErrRecordNotFound {
+//			return nil, errors.New(errors.USER_NOT_EXIST, "该用户不存在")
+//		}
+//		return nil, errors.New(errors.INTERNAL_ERROR, "")
+//	}
+//
+//	return &u, nil
+//}

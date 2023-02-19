@@ -13,6 +13,14 @@ const (
 	KYC_STATUS_FAIL    = 3
 )
 
+// 角色code
+const (
+	ROLE_ADMIN    = 0
+	ROLE_NORMAL   = 1
+	ROLE_DESIGNER = 2
+	ROLE_PATTERN  = 3
+)
+
 type User struct {
 	UserId      string `json:"userId" gorm:"comment:'用户uuid'"`   //用户uuid
 	DisplayName string `json:"displayName" gorm:"comment:'昵称'"`  //昵称
@@ -86,25 +94,25 @@ func initRoles() {
 	roles := make([]*Role, 0)
 
 	admin := &Role{
-		Code: 0,
+		Code: ROLE_ADMIN,
 		Name: "管理员",
 	}
 	roles = append(roles, admin)
 
 	normalUser := &Role{
-		Code: 1,
+		Code: ROLE_NORMAL,
 		Name: "普通用户",
 	}
 	roles = append(roles, normalUser)
 
 	designer := &Role{
-		Code: 2,
+		Code: ROLE_DESIGNER,
 		Name: "设计师",
 	}
 	roles = append(roles, designer)
 
 	patternMaker := &Role{
-		Code: 3,
+		Code: ROLE_PATTERN,
 		Name: "版型师",
 	}
 	roles = append(roles, patternMaker)
@@ -146,8 +154,8 @@ type LoginResp struct {
 }
 
 type SetTokenReq struct {
-	Phone string
-	Token []byte
+	Phone string //手机号
+	Token []byte //用户token
 }
 
 type SetTokenResp struct {

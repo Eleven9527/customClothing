@@ -17,6 +17,7 @@ const (
 	ROLE_NOT_EXIST          = 10019 //角色不存在
 	TOKEN_VERIFY_ERROR      = 10020 //token验证失败
 	USER_NOT_LOGIN          = 10021 //用户未登录
+	ORDER_NOT_EXIST         = 10022 //订单不存在
 )
 
 type Error interface {
