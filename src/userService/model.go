@@ -26,10 +26,18 @@ type User struct {
 	gorm.Model
 }
 
+func (User) TableName() string {
+	return "user"
+}
+
 type Role struct {
 	Code int    `json:"code" gorm:"comment:'角色代码'"` //角色代码
 	Name string `json:"name" gorm:"comment:'角色名'"`  //角色名
 	gorm.Model
+}
+
+func (Role) TableName() string {
+	return "role"
 }
 
 type Kyc struct {
@@ -40,6 +48,10 @@ type Kyc struct {
 	RoleCode int    `json:"roleCode" gorm:"comment:'申请成为的角色'"` //申请成为的角色
 	Status   int    `json:"status" gorm:"comment:'审核状态'"`      //审核状态
 	gorm.Model
+}
+
+func (Kyc) TableName() string {
+	return "kyc"
 }
 
 func InitUserServiceDb() {
@@ -63,8 +75,8 @@ func InitUserServiceDb() {
 func initRoles() {
 	//如果表中有数据，则无需初始化
 	var count int64
-	if err := db.Db().Where("code > -1").Count(&count).Error; err != nil {
-		panic("Role数据初始化失败")
+	if err := db.Db().Table(Role{}.TableName()).Where("code > -1").Count(&count).Error; err != nil {
+		panic("Role数据初始化失败:" + err.Error())
 	}
 
 	if count > 0 {
@@ -97,9 +109,11 @@ func initRoles() {
 	}
 	roles = append(roles, patternMaker)
 
-	if err := db.Db().Create(&roles).Error; err != nil {
-		panic("Role数据初始化失败")
-	}
+	db.Db().Table(Role{}.TableName()).Create(&admin)
+	db.Db().Table(Role{}.TableName()).Create(&normalUser)
+	db.Db().Table(Role{}.TableName()).Create(&designer)
+	db.Db().Table(Role{}.TableName()).Create(&patternMaker)
+
 }
 
 type RegisterUserReq struct {

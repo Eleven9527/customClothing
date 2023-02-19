@@ -4,6 +4,7 @@ import (
 	"customClothing/src/cache"
 	"customClothing/src/config"
 	"customClothing/src/db"
+	"customClothing/src/orderService"
 	"customClothing/src/router"
 	"customClothing/src/userService"
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,7 @@ func main() {
 
 	//初始化数据表
 	userService.InitUserServiceDb()
+	orderService.InitOrderServiceDb()
 
 	//注册路由
 	router.RegisterRoutes(r)

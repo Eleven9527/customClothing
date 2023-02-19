@@ -29,6 +29,6 @@ func InitDb() {
 
 	conn.DB().SetMaxIdleConns(config.Cfg().DbCfg.MaxIdle)
 	conn.DB().SetMaxOpenConns(config.Cfg().DbCfg.MaxOpen)
-
+	conn.LogMode(true)
 	db = conn
 }
