@@ -14,12 +14,17 @@ var OrderSvc orderService.OrderService
 func RegisterOrderHandlers(r *gin.RouterGroup) {
 	OrderSvc = orderService.MakeUserService()
 
-	r.GET("/all", ListOrdersHandler)        //查询所有订单
-	r.GET("/single", GetSingleOrderHandler) //查询单个订单
-	r.PUT("/cost", UpdateCostHandler)       //修改订单费用
-	r.DELETE("", CancelOrderHandler)        //取消订单
-	r.POST("/confirm", ConfirmOrderHandler) //确认订单
-	r.POST("/reporter", ReportOrderHandler) //举报
+	r.GET("/all", ListOrdersHandler)                                  //查询所有订单
+	r.GET("/single", GetSingleOrderHandler)                           //查询单个订单
+	r.PUT("/cost", UpdateCostHandler)                                 //修改订单费用
+	r.DELETE("", CancelOrderHandler)                                  //取消订单
+	r.POST("/confirm", ConfirmOrderHandler)                           //确认订单
+	r.POST("/reporter", ReportOrderHandler)                           //举报
+	r.PUT("/designArtwork", UploadDesignArtworkHandler)               //上传设计图稿
+	r.PUT("/patternArtwork", UploadPatternArtworkHandler)             //上传版型图稿
+	r.PUT("/patternMakingProcess", UploadPatternMakingProcessHandler) //版型制作工艺
+	r.PUT("/sampleImage", UploadSampleImageHandler)                   //上传样品成衣图
+	r.PUT("/showVideo", UploadShowVideoHandler)                       //上传模特展示视频
 }
 
 func ListOrdersHandler(c *gin.Context) {
@@ -143,5 +148,98 @@ func ReportOrderHandler(c *gin.Context) {
 	}
 
 	resp, err := OrderSvc.ReportOrder(c, &req)
+	response.Success(c, err, resp)
+}
+
+func UploadDesignArtworkHandler(c *gin.Context) {
+	req := orderService.UploadDesignArtworkReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//todo:最多6张图片
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.UploadDesignArtwork(c, &req)
+	response.Success(c, err, resp)
+}
+
+func UploadPatternArtworkHandler(c *gin.Context) {
+	req := orderService.UploadPatternArtworkReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//todo:最多6张图片
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.UploadPatternArtwork(c, &req)
+	response.Success(c, err, resp)
+}
+
+func UploadPatternMakingProcessHandler(c *gin.Context) {
+	req := orderService.UploadPatternMakingProcessReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//限制内容长度
+	if len(req.Content) > 500 {
+		response.RespError(http.StatusBadRequest, c, errors.CONTENT_LENGTH_ERROR, "内容长度过大，请限制在500以内")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.UploadPatternMakingProcess(c, &req)
+	response.Success(c, err, resp)
+}
+
+func UploadSampleImageHandler(c *gin.Context) {
+	req := orderService.UploadSampleImageReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//todo:最多6张图片
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.UploadSampleImage(c, &req)
+	response.Success(c, err, resp)
+}
+
+func UploadShowVideoHandler(c *gin.Context) {
+	req := orderService.UploadShowVideoReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//todo:每个视频最大20m
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.UploadShowVideo(c, &req)
 	response.Success(c, err, resp)
 }

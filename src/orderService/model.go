@@ -116,3 +116,81 @@ type ReportOrderReq struct {
 
 type ReportOrderResp struct {
 }
+
+type UploadDesignArtworkReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+}
+
+type UploadDesignArtworkResp struct {
+}
+
+type UpdateDesignArtworkReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	Url     string `json:"url"`     //图稿url地址
+}
+
+type UpdateDesignArtworkResp struct {
+}
+
+type UploadPatternArtworkReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+}
+
+type UploadPatternArtworkResp struct {
+}
+
+type UpdatePatternArtworkReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	Url     string `json:"url"`     //图稿url地址
+}
+
+type UpdatePatternArtworkResp struct {
+}
+
+type UploadPatternMakingProcessReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	Content string `json:"content"` //工艺内容
+}
+
+type UploadPatternMakingProcessResp struct {
+}
+
+type UpdatePatternMakingProcessReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	Content string `json:"content"` //工艺内容
+}
+
+type UpdatePatternMakingProcessResp struct {
+}
+
+type UploadSampleImageReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	Url     string `json:"url"`     //成衣图url地址
+}
+
+type UploadSampleImageResp struct {
+}
+
+type UpdateSampleImageReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	Url     string `json:"url"`     //成衣图url地址
+}
+
+type UpdateSampleImageResp struct {
+}
+
+type UploadShowVideoReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	Url     string `json:"url"`     //视频url地址
+}
+
+type UploadShowVideoResp struct {
+}
+
+type UpdateShowVideoReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	Url     string `json:"url"`     //视频url地址
+}
+
+type UpdateShowVideoResp struct {
+}

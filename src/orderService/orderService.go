@@ -12,6 +12,11 @@ type OrderService interface {
 	CancelOrder(ctx context.Context, req *CancelOrderReq) (*CancelOrderResp, errors.Error)
 	ConfirmOrder(ctx context.Context, req *ConfirmOrderReq) (*ConfirmOrderResp, errors.Error)
 	ReportOrder(ctx context.Context, req *ReportOrderReq) (*ReportOrderResp, errors.Error)
+	UploadDesignArtwork(ctx context.Context, req *UploadDesignArtworkReq) (*UploadDesignArtworkResp, errors.Error)
+	UploadPatternArtwork(ctx context.Context, req *UploadPatternArtworkReq) (*UploadPatternArtworkResp, errors.Error)
+	UploadPatternMakingProcess(ctx context.Context, req *UploadPatternMakingProcessReq) (*UploadPatternMakingProcessResp, errors.Error)
+	UploadSampleImage(ctx context.Context, req *UploadSampleImageReq) (*UploadSampleImageResp, errors.Error)
+	UploadShowVideo(ctx context.Context, req *UploadShowVideoReq) (*UploadShowVideoResp, errors.Error)
 }
 
 type OrderSvc struct {
@@ -90,4 +95,59 @@ func (o *OrderSvc) ReportOrder(ctx context.Context, req *ReportOrderReq) (*Repor
 	}
 
 	return o.orderRepo.AddReporter(ctx, req)
+}
+
+func (o *OrderSvc) UploadDesignArtwork(ctx context.Context, req *UploadDesignArtworkReq) (*UploadDesignArtworkResp, errors.Error) {
+	//todo:存到图片到oss并返回url
+
+	//存储url到数据库
+	_, err := o.orderRepo.UpdateDesignArtwork(ctx, &UpdateDesignArtworkReq{
+		OrderId: req.OrderId,
+		Url:     "", //todo:url
+	})
+
+	return &UploadDesignArtworkResp{}, err
+}
+
+func (o *OrderSvc) UploadPatternArtwork(ctx context.Context, req *UploadPatternArtworkReq) (*UploadPatternArtworkResp, errors.Error) {
+	//todo:存到图片到oss并返回url
+
+	//存储url到数据库
+	_, err := o.orderRepo.UpdatePatternArtwork(ctx, &UpdatePatternArtworkReq{
+		OrderId: req.OrderId,
+		Url:     "", //todo:url
+	})
+
+	return &UploadPatternArtworkResp{}, err
+}
+
+func (o *OrderSvc) UploadPatternMakingProcess(ctx context.Context, req *UploadPatternMakingProcessReq) (*UploadPatternMakingProcessResp, errors.Error) {
+	_, err := o.orderRepo.UpdatePatternMakingProcess(ctx, &UpdatePatternMakingProcessReq{
+		OrderId: req.OrderId,
+		Content: req.Content,
+	})
+
+	return &UploadPatternMakingProcessResp{}, err
+}
+
+func (o *OrderSvc) UploadSampleImage(ctx context.Context, req *UploadSampleImageReq) (*UploadSampleImageResp, errors.Error) {
+	//todo:存到图片到oss并返回url
+
+	_, err := o.orderRepo.UpdateSampleImage(ctx, &UpdateSampleImageReq{
+		OrderId: req.OrderId,
+		Url:     "", //todo:url
+	})
+
+	return &UploadSampleImageResp{}, err
+}
+
+func (o *OrderSvc) UploadShowVideo(ctx context.Context, req *UploadShowVideoReq) (*UploadShowVideoResp, errors.Error) {
+	//todo:存到视频到oss并返回url
+
+	_, err := o.orderRepo.UpdateShowVideo(ctx, &UpdateShowVideoReq{
+		OrderId: req.OrderId,
+		Url:     "", //todo:url
+	})
+
+	return &UploadShowVideoResp{}, err
 }
