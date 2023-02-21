@@ -19,6 +19,10 @@ func RegisterUserHandlers(r *gin.RouterGroup) {
 	r.POST("", RegisterHandler)            //注册用户
 	r.POST("/login", LoginHandler)         //登录
 	r.POST("/kyc", KycHandler)             //kyc
+	r.POST("/margin", PayMarginHandler)    //缴纳保证金
+	r.GET("/margin", GetMarginHandler)     //查询保证金
+	r.PUT("/margin", WithdrawHandler)      //保证金提现
+	r.DELETE("/margin", DeductHandler)     //扣除保证金
 }
 func RegisterHandler(c *gin.Context) {
 	req := userService.RegisterUserReq{}
@@ -73,6 +77,101 @@ func LoginHandler(c *gin.Context) {
 }
 
 func KycHandler(c *gin.Context) {
+	req := userService.KycReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	if len(req.UserId) == 0 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_UUID_ERROR, "uuid长度错误")
+	}
+
+	if !utils.VerifyMobileFormat(req.Phone) {
+		response.RespError(http.StatusBadRequest, c, errors.USER_PHONE_ERROR, "手机号格式错误")
+	}
+
+	if len(req.Name) < 2 || len(req.Name) > 10 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_NAME_LENGTH_EEEOR, "姓名长度错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := UserSvc.Kyc(c, &req)
+	response.Success(c, err, resp)
+}
+
+func PayMarginHandler(c *gin.Context) {
+	req := userService.PayMarginReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	if len(req.UserId) == 0 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_UUID_ERROR, "uuid长度错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := UserSvc.PayMargin(c, &req)
+	response.Success(c, err, resp)
+}
+
+func GetMarginHandler(c *gin.Context) {
+	req := userService.GetMarginReq{
+		UserId: c.Query("userId"),
+	}
+
+	if len(req.UserId) == 0 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_UUID_ERROR, "uuid长度错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := UserSvc.GetMargin(c, &req)
+	response.Success(c, err, resp)
+}
+
+func WithdrawHandler(c *gin.Context) {
+	req := userService.KycReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	if len(req.UserId) == 0 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_UUID_ERROR, "uuid长度错误")
+	}
+
+	if !utils.VerifyMobileFormat(req.Phone) {
+		response.RespError(http.StatusBadRequest, c, errors.USER_PHONE_ERROR, "手机号格式错误")
+	}
+
+	if len(req.Name) < 2 || len(req.Name) > 10 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_NAME_LENGTH_EEEOR, "姓名长度错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := UserSvc.Kyc(c, &req)
+	response.Success(c, err, resp)
+}
+
+func DeductHandler(c *gin.Context) {
 	req := userService.KycReq{}
 	if err := c.ShouldBind(&req); err != nil {
 		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")

@@ -14,23 +14,30 @@ var OrderSvc orderService.OrderService
 func RegisterOrderHandlers(r *gin.RouterGroup) {
 	OrderSvc = orderService.MakeUserService()
 
-	r.GET("/all", ListOrdersHandler)                                  //查询所有订单
-	r.GET("/single", GetSingleOrderHandler)                           //查询单个订单
-	r.PUT("/cost", UpdateCostHandler)                                 //修改订单费用
-	r.DELETE("", CancelOrderHandler)                                  //取消订单
-	r.POST("/confirm", ConfirmOrderHandler)                           //确认订单
-	r.POST("/reporter", ReportOrderHandler)                           //举报
-	r.PUT("/designArtwork", UploadDesignArtworkHandler)               //上传设计图稿
-	r.PUT("/patternArtwork", UploadPatternArtworkHandler)             //上传版型图稿
-	r.PUT("/patternMakingProcess", UploadPatternMakingProcessHandler) //版型制作工艺
-	r.PUT("/sampleImage", UploadSampleImageHandler)                   //上传样品成衣图
-	r.PUT("/showVideo", UploadShowVideoHandler)                       //上传模特展示视频
+	r.GET("/all", ListOrdersHandler)                                   //查询所有订单
+	r.GET("/single", GetSingleOrderHandler)                            //查询单个订单
+	r.PUT("/cost", UpdateCostHandler)                                  //修改订单费用
+	r.DELETE("", CancelOrderHandler)                                   //取消订单
+	r.POST("/confirm", ConfirmOrderHandler)                            //确认订单
+	r.POST("/reporter", ReportOrderHandler)                            //举报
+	r.POST("/designArtwork", UploadDesignArtworkHandler)               //上传设计图稿
+	r.POST("/patternArtwork", UploadPatternArtworkHandler)             //上传版型图稿
+	r.POST("/patternMakingProcess", UploadPatternMakingProcessHandler) //上传版型制作工艺
+	r.POST("/sampleImage", UploadSampleImageHandler)                   //上传样品成衣图
+	r.POST("/showVideo", UploadShowVideoHandler)                       //上传模特展示视频
 }
 
 func ListOrdersHandler(c *gin.Context) {
-	req := orderService.ListOrdersReq{}
-	if err := c.ShouldBind(&req); err != nil {
-		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	roleCode := c.GetInt("roleCode")
+	status := c.GetInt("status")
+	pageNum := c.GetInt("pageNum")
+	pageSize := c.GetInt("pageSize")
+	req := orderService.ListOrdersReq{
+		UserId:   c.Query("userId"),
+		RoleCode: roleCode,
+		Status:   status,
+		PageNum:  uint(pageNum),
+		PageSize: uint(pageSize),
 	}
 
 	if req.PageNum <= 0 || req.PageSize <= 0 {
@@ -48,9 +55,8 @@ func ListOrdersHandler(c *gin.Context) {
 }
 
 func GetSingleOrderHandler(c *gin.Context) {
-	req := orderService.GetOrderReq{}
-	if err := c.ShouldBind(&req); err != nil {
-		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	req := orderService.GetOrderReq{
+		OrderId: c.Query("orderId"),
 	}
 
 	if len(req.OrderId) == 0 {

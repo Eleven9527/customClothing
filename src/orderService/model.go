@@ -59,7 +59,7 @@ func InitOrderServiceDb() {
 type ListOrdersReq struct {
 	UserId   string `json:"userId"`   //用户uuid
 	RoleCode int    `json:"roleCode"` //用户角色code
-	Status   string `json:"status"`   //订单状态
+	Status   int    `json:"status"`   //订单状态
 	PageNum  uint   `json:"pageNum"`  //页数
 	PageSize uint   `json:"pageSize"` //每页条数
 }

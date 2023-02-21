@@ -12,22 +12,28 @@ type UserService interface {
 	Login(c context.Context, req *LoginReq) (*LoginResp, errors.Error)
 	Kyc(c context.Context, req *KycReq) (*KycResp, errors.Error)
 	VerifyToken(tk []byte) errors.Error
+	PayMargin(c context.Context, req *PayMarginReq) (*PayMarginResp, errors.Error)
+	GetMargin(c context.Context, req *GetMarginReq) (*GetMarginResp, errors.Error)
+	WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*WithdrawMarginResp, errors.Error)
+	DeductMargin(c context.Context, req *DeductMarginReq) (*DeductMarginResp, errors.Error)
 }
 
 type UserSvc struct {
-	repo  RepoService
-	cache CacheService
+	userRepo   UserRepoService
+	marginRepo MarginRecordRepoService
+	cache      CacheService
 }
 
 func MakeUserService() UserService {
 	return &UserSvc{
-		repo:  MakeRepoService(),
-		cache: MakeCacheService(),
+		userRepo:   MakeUserRepoService(),
+		marginRepo: MakeMarginRecordRepoService(),
+		cache:      MakeCacheService(),
 	}
 }
 
 func (u *UserSvc) RegisterUser(c context.Context, req *RegisterUserReq) (*RegisterUserResp, errors.Error) {
-	return u.repo.AddUser(c, req)
+	return u.userRepo.AddUser(c, req)
 
 }
 
@@ -38,7 +44,7 @@ func (u *UserSvc) GetAuthCode(c context.Context, req *GetAuthCodeReq) (*GetAuthC
 
 func (u *UserSvc) Login(c context.Context, req *LoginReq) (*LoginResp, errors.Error) {
 	//检测用户是否存在
-	user, err := u.repo.GetUserByPhone(c, req.Phone)
+	user, err := u.userRepo.GetUserByPhone(c, req.Phone)
 	if err != nil {
 		return nil, err
 	}
@@ -62,13 +68,13 @@ func (u *UserSvc) Login(c context.Context, req *LoginReq) (*LoginResp, errors.Er
 }
 
 func (u *UserSvc) Kyc(c context.Context, req *KycReq) (*KycResp, errors.Error) {
-	role, err := u.repo.GetRoleByCode(c, req.RoleCode)
+	role, err := u.userRepo.GetRoleByCode(c, req.RoleCode)
 	if err != nil {
 		return nil, err
 	}
 
 	//检测用户是否存在
-	_, err = u.repo.GetUserByPhone(c, req.Phone)
+	_, err = u.userRepo.GetUserByPhone(c, req.Phone)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +88,7 @@ func (u *UserSvc) Kyc(c context.Context, req *KycReq) (*KycResp, errors.Error) {
 		Status:   KYC_STATUS_PENDING,
 	}
 
-	return nil, u.repo.AddKyc(c, &kyc)
+	return nil, u.userRepo.AddKyc(c, &kyc)
 }
 
 func (u *UserSvc) VerifyToken(tk []byte) errors.Error {
@@ -96,4 +102,68 @@ func (u *UserSvc) VerifyToken(tk []byte) errors.Error {
 	}
 
 	return nil
+}
+
+func (u *UserSvc) PayMargin(c context.Context, req *PayMarginReq) (*PayMarginResp, errors.Error) {
+	//修改保证金余额
+	_, err := u.userRepo.AddMargin(c, &AddMarginReq{
+		UserId: req.UserId,
+		Amount: req.Amount,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	//添加记录
+	_, err = u.marginRepo.AddMarginRecord(c, &AddMarginRecordReq{
+		UserId:      req.UserId,
+		Amount:      req.Amount,
+		OperateType: MARGIN_OP_ADD,
+	})
+
+	return &PayMarginResp{}, err
+}
+
+func (u *UserSvc) GetMargin(c context.Context, req *GetMarginReq) (*GetMarginResp, errors.Error) {
+	amount, err := u.userRepo.GetMargin(c, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &GetMarginResp{Amount: amount}, nil
+}
+
+func (u *UserSvc) WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*WithdrawMarginResp, errors.Error) {
+	//提现
+	_, err := u.userRepo.WithdrawMargin(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	//记录
+	_, err = u.marginRepo.AddMarginRecord(c, &AddMarginRecordReq{
+		UserId:      req.UserId,
+		Amount:      req.Amount,
+		OperateType: MARGIN_OP_WITHDRAW,
+	})
+
+	return &WithdrawMarginResp{}, nil
+}
+
+func (u *UserSvc) DeductMargin(c context.Context, req *DeductMarginReq) (*DeductMarginResp, errors.Error) {
+	//扣除保证金
+	_, err := u.userRepo.DeductMargin(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	//记录
+	_, err = u.marginRepo.AddMarginRecord(c, &AddMarginRecordReq{
+		UserId:      req.UserId,
+		Amount:      req.Amount,
+		OperateType: MARGIN_OP_DEDUCT,
+	})
+
+	return &DeductMarginResp{}, nil
 }

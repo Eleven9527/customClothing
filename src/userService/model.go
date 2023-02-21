@@ -21,13 +21,20 @@ const (
 	ROLE_PATTERN  = 3
 )
 
+// 保证金操作类型
+const (
+	MARGIN_OP_ADD      = 1 //缴纳
+	MARGIN_OP_DEDUCT   = 2 //扣除
+	MARGIN_OP_WITHDRAW = 3 //提现
+)
+
 type User struct {
 	UserId      string `json:"userId" gorm:"comment:'用户uuid'"`  //用户uuid
 	DisplayName string `json:"displayName" gorm:"comment:'昵称'"` //昵称
 	Password    string `json:"password" gorm:"comment:'密码'"`    //密码
 	Avatar      string `json:"avatar" gorm:"comment:'头像图片地址'"`  //头像图片地址
 	Role        Role   `json:"role" gorm:"comment:'角色'"`        //角色
-	Margin      uint64 `json:"margin" gorm:"comment:'保证金'"`     //保证金
+	Margin      uint   `json:"margin" gorm:"comment:'保证金'"`     //保证金
 	Phone       string `json:"phone" gorm:"comment:'手机号'"`      //手机号
 	gorm.Model
 }
@@ -44,6 +51,17 @@ type Role struct {
 
 func (Role) TableName() string {
 	return "role"
+}
+
+type MarginRecord struct {
+	UserId      string `json:"userId" gorm:"comment:'用户uuid'"`    //用户uuid
+	OperateType int    `json:"operateType" gorm:"comment:'操作类型'"` //操作类型
+	Amount      uint   `json:"amount" gorm:"comment:'操作金额'"`      //操作金额
+	gorm.Model
+}
+
+func (MarginRecord) TableName() string {
+	return "marginRecord"
 }
 
 type Kyc struct {
@@ -76,6 +94,11 @@ func InitUserServiceDb() {
 		panic("初始化Kyc表失败:" + err.Error())
 	}
 	fmt.Println("Kyc表初始化成功!")
+
+	if err := db.Db().AutoMigrate(&MarginRecord{}).Error; err != nil {
+		panic("初始化MarginRecord表失败:" + err.Error())
+	}
+	fmt.Println("MarginRecord表初始化成功!")
 }
 
 func initRoles() {
@@ -161,11 +184,60 @@ type SetTokenResp struct {
 }
 
 type KycReq struct {
-	UserId   string `json:"userId" gorm:"comment:'用户uuid'"`    //用户uuid
-	Name     string `json:"name" gorm:"comment:'姓名'"`          //姓名
-	Phone    string `json:"phone" gorm:"comment:'手机号'"`        //手机号
-	RoleCode int    `json:"roleCode" gorm:"comment:'申请成为的角色'"` //申请成为的角色
+	UserId   string `json:"userId"`   //用户uuid
+	Name     string `json:"name"`     //姓名
+	Phone    string `json:"phone"`    //手机号
+	RoleCode int    `json:"roleCode"` //申请成为的角色
 }
 
 type KycResp struct {
+}
+
+type PayMarginReq struct {
+	UserId string `json:"userId"` //用户uuid
+	Amount uint   `json:"amount"` //缴纳金额
+}
+
+type PayMarginResp struct {
+}
+
+type AddMarginReq struct {
+	UserId string `json:"userId"` //用户uuid
+	Amount uint   `json:"amount"` //缴纳金额
+}
+
+type AddMarginResp struct {
+}
+
+type AddMarginRecordReq struct {
+	UserId      string `json:"userId"`                            //用户uuid
+	Amount      uint   `json:"amount"`                            //操作金额
+	OperateType int    `json:"operateType" gorm:"comment:'操作类型'"` //操作类型
+}
+
+type AddMarginRecordResp struct {
+}
+
+type GetMarginReq struct {
+	UserId string `json:"userId"` //用户uuid
+}
+
+type GetMarginResp struct {
+	Amount uint `json:"amount"` //保证金数量
+}
+
+type WithdrawMarginReq struct {
+	UserId string `json:"userId"` //用户uuid
+	Amount uint   `json:"amount"` //提现金额
+}
+
+type WithdrawMarginResp struct {
+}
+
+type DeductMarginReq struct {
+	UserId string `json:"userId"` //用户uuid
+	Amount uint   `json:"amount"` //提现金额
+}
+
+type DeductMarginResp struct {
 }

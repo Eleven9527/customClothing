@@ -34,7 +34,7 @@ func MakeRepoService() RepoService {
 
 func (r *repoSvc) ListOrders(ctx context.Context, req *ListOrdersReq) (*ListOrdersResp, errors.Error) {
 	var count int64
-	if err := db.Db().Where("id >0").Count(&count); err != nil {
+	if err := r.db.Where("id >0").Count(&count); err != nil {
 		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 
@@ -61,7 +61,7 @@ func (r *repoSvc) ListOrders(ctx context.Context, req *ListOrdersReq) (*ListOrde
 func (r *repoSvc) GetSingleOrder(ctx context.Context, req *GetOrderReq) (*GetOrderResp, errors.Error) {
 	o := Order{}
 
-	if err := db.Db().Where("order_id = ?", req.OrderId).First(&o).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).First(&o).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
@@ -72,7 +72,7 @@ func (r *repoSvc) GetSingleOrder(ctx context.Context, req *GetOrderReq) (*GetOrd
 }
 
 func (r *repoSvc) UpdateCost(ctx context.Context, req *UpdateCostReq) (*UpdateCostResp, errors.Error) {
-	if err := db.Db().Where("order_id = ?", req.OrderId).Update("cost = ?", req.Cost).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).Update("cost = ?", req.Cost).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
@@ -83,7 +83,7 @@ func (r *repoSvc) UpdateCost(ctx context.Context, req *UpdateCostReq) (*UpdateCo
 }
 
 func (r *repoSvc) CancelOrder(ctx context.Context, req *CancelOrderReq) (*CancelOrderResp, errors.Error) {
-	if err := db.Db().Where("order_id = ?", req.OrderId).Update("status = ?", STATUS_CANCEL).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).Update("status = ?", STATUS_CANCEL).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
@@ -95,7 +95,7 @@ func (r *repoSvc) CancelOrder(ctx context.Context, req *CancelOrderReq) (*Cancel
 }
 
 func (r *repoSvc) ConfirmOrder(ctx context.Context, req *ConfirmOrderReq) (*ConfirmOrderResp, errors.Error) {
-	if err := db.Db().Where("order_id = ?", req.OrderId).Update("status = ?", STATUS_COMPLETE).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).Update("status = ?", STATUS_COMPLETE).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
@@ -116,7 +116,7 @@ func (r *repoSvc) AddReporter(ctx context.Context, req *ReportOrderReq) (*Report
 		OrderId:        req.OrderId,
 	}
 
-	if err := db.Db().Create(&reporter).Error; err != nil {
+	if err := r.db.Create(&reporter).Error; err != nil {
 		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 
@@ -124,7 +124,7 @@ func (r *repoSvc) AddReporter(ctx context.Context, req *ReportOrderReq) (*Report
 }
 
 func (r *repoSvc) UpdateDesignArtwork(ctx context.Context, req *UpdateDesignArtworkReq) (*UpdateDesignArtworkResp, errors.Error) {
-	if err := db.Db().Where("order_id = ?", req.OrderId).Update("design_artwork = ?", req.Url).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).Update("design_artwork = ?", req.Url).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
@@ -135,7 +135,7 @@ func (r *repoSvc) UpdateDesignArtwork(ctx context.Context, req *UpdateDesignArtw
 }
 
 func (r *repoSvc) UpdatePatternArtwork(ctx context.Context, req *UpdatePatternArtworkReq) (*UpdatePatternArtworkResp, errors.Error) {
-	if err := db.Db().Where("order_id = ?", req.OrderId).Update("pattern_artwork = ?", req.Url).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).Update("pattern_artwork = ?", req.Url).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
@@ -146,7 +146,7 @@ func (r *repoSvc) UpdatePatternArtwork(ctx context.Context, req *UpdatePatternAr
 }
 
 func (r *repoSvc) UpdatePatternMakingProcess(ctx context.Context, req *UpdatePatternMakingProcessReq) (*UpdatePatternMakingProcessResp, errors.Error) {
-	if err := db.Db().Where("order_id = ?", req.OrderId).Update("pattern_making_process = ?", req.Content).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).Update("pattern_making_process = ?", req.Content).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
@@ -157,7 +157,7 @@ func (r *repoSvc) UpdatePatternMakingProcess(ctx context.Context, req *UpdatePat
 }
 
 func (r *repoSvc) UpdateSampleImage(ctx context.Context, req *UpdateSampleImageReq) (*UpdateSampleImageResp, errors.Error) {
-	if err := db.Db().Where("order_id = ?", req.OrderId).Update("sample_image = ?", req.Url).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).Update("sample_image = ?", req.Url).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
@@ -168,7 +168,7 @@ func (r *repoSvc) UpdateSampleImage(ctx context.Context, req *UpdateSampleImageR
 }
 
 func (r *repoSvc) UpdateShowVideo(ctx context.Context, req *UpdateShowVideoReq) (*UpdateShowVideoResp, errors.Error) {
-	if err := db.Db().Where("order_id = ?", req.OrderId).Update("show_video = ?", req.Url).Error; err != nil {
+	if err := r.db.Where("order_id = ?", req.OrderId).Update("show_video = ?", req.Url).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
 		}
