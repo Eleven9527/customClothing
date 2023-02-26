@@ -20,6 +20,7 @@ const (
 	ORDER_NOT_EXIST         = 10022 //订单不存在
 	ORDER_STATUS_ERROR      = 10023 //订单状态错误
 	CONTENT_LENGTH_ERROR    = 10024 //文本长度错误
+	ROLE_ERROR              = 10025 //用户角色错误
 )
 
 type Error interface {

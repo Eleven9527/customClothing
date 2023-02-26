@@ -1,0 +1,1295 @@
+definitions:
+  orderService.Address:
+    properties:
+      city:
+        description: 市
+        type: string
+      contact:
+        description: 联系人
+        type: string
+      detail:
+        description: 详细地址
+        type: string
+      district:
+        description: 区
+        type: string
+      phone:
+        description: 手机号
+        type: string
+      province:
+        description: 省
+        type: string
+    type: object
+  orderService.Bottom:
+    properties:
+      headCircumference:
+        description: 净头围[单位cm]
+        type: number
+      hipCircumference:
+        description: 净臀围[单位cm]
+        type: number
+      length:
+        description: 裤长[单位cm]
+        type: number
+      thighCircumference:
+        description: 净大腿围[单位cm]
+        type: number
+      waistline:
+        description: 净腰围[单位cm]
+        type: number
+    type: object
+  orderService.CancelOrderReq:
+    properties:
+      orderId:
+        description: 订单uuid
+        type: string
+    type: object
+  orderService.CancelOrderResp:
+    type: object
+  orderService.Coat:
+    properties:
+      armCircumference:
+        description: 手臂围[单位cm]
+        type: number
+      bust:
+        description: 净胸围[单位cm]
+        type: number
+      clothLength:
+        description: 衣长[单位cm]
+        type: number
+      shoulderWidth:
+        description: 肩宽[单位cm]
+        type: number
+      sleeveLength:
+        description: 袖长[单位cm]
+        type: number
+    type: object
+  orderService.ConfirmOrderReq:
+    properties:
+      orderId:
+        description: 订单uuid
+        type: string
+    type: object
+  orderService.ConfirmOrderResp:
+    type: object
+  orderService.ConsumptionPositioning:
+    properties:
+      age:
+        description: 年龄层：18-24，24-28，26-30，33-38等
+        type: integer
+      earn:
+        description: 收入范围：5000-8000，7000-9000，10000-11000等
+        type: integer
+      profession:
+        description: 职业：自填
+        type: string
+    type: object
+  orderService.GetOrderResp:
+    properties:
+      order:
+        $ref: '#/definitions/orderService.Order'
+    type: object
+  orderService.GetOrderSumResp:
+    properties:
+      amount:
+        description: 总交易金额
+        type: number
+      sum:
+        description: 总交易次数
+        type: integer
+    type: object
+  orderService.ListOrdersResp:
+    properties:
+      orders:
+        description: 订单列表
+        items:
+          $ref: '#/definitions/orderService.Order'
+        type: array
+      total:
+        description: 总条数
+        type: integer
+    type: object
+  orderService.Order:
+    properties:
+      cost:
+        description: 费用
+        type: number
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      designArtwork:
+        description: 设计图稿地址
+        type: string
+      id:
+        type: integer
+      orderId:
+        description: 订单uuid
+        type: string
+      partA:
+        description: 甲方uuid
+        type: string
+      partB:
+        description: 乙方uuid
+        type: string
+      patternArtwork:
+        description: 版型图稿地址
+        type: string
+      patternMakingProcess:
+        description: 版型制作工艺
+        type: string
+      sampleImage:
+        description: 样品成衣图地址
+        type: string
+      showVideo:
+        description: 模特展示视频地址
+        type: string
+      status:
+        description: 订单状态
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  orderService.PatternRequest:
+    properties:
+      contour:
+        description: 轮廓设计：A H X Y T V O；
+        type: string
+      function:
+        description: 功能要求：自填；
+        type: string
+      localDesign:
+        description: 局部设计：绣花、印花、领口、袖口、门襟；
+        type: integer
+      looseness:
+        description: 宽松度：紧身、合体、宽松；
+        type: integer
+      patternStructure:
+        description: 版型结构：立体或者平面；
+        type: integer
+    type: object
+  orderService.PublishOrderReq:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/orderService.Address'
+        description: 收货地址
+      confirmSteps:
+        description: 步骤确认
+        items:
+          type: integer
+        type: array
+      consumptionPositioning:
+        allOf:
+        - $ref: '#/definitions/orderService.ConsumptionPositioning'
+        description: 消费定位
+      cost:
+        description: 费用
+        type: number
+      customStyle:
+        description: 自定义风格描述
+        type: string
+      deadLine:
+        description: 截止时间
+        type: string
+      description:
+        description: 需求大致介绍
+        type: string
+      part:
+        description: 制作类别
+        type: integer
+      patternCost:
+        description: 版型费用
+        type: number
+      patternRequest:
+        allOf:
+        - $ref: '#/definitions/orderService.PatternRequest'
+        description: 版型工艺制作要求
+      productionTime:
+        description: 制作天数要求
+        type: integer
+      provideFabric:
+        description: 是否需要提供面料
+        type: boolean
+      referenceSize:
+        allOf:
+        - $ref: '#/definitions/orderService.ReferenceSize'
+        description: 参考尺寸
+      sampleCost:
+        description: 成衣样衣费用
+        type: number
+      style:
+        description: 风格描述
+        type: integer
+      userId:
+        description: 甲方uuid
+        type: string
+      wearingOccasion:
+        description: 穿着场合
+        type: integer
+    type: object
+  orderService.PublishOrderResp:
+    type: object
+  orderService.ReferenceSize:
+    properties:
+      bottom:
+        allOf:
+        - $ref: '#/definitions/orderService.Bottom'
+        description: 下装
+      coat:
+        allOf:
+        - $ref: '#/definitions/orderService.Coat'
+        description: 上衣
+      height:
+        description: 身高
+        type: integer
+      weight:
+        description: 体重
+        type: integer
+    type: object
+  orderService.ReportOrderReq:
+    properties:
+      description:
+        description: 举报描述
+        type: string
+      orderId:
+        description: 订单uuid
+        type: string
+      reportedPerson:
+        description: 被举报人uuid
+        type: string
+      whistleblower:
+        description: 举报人uuid
+        type: string
+    type: object
+  orderService.ReportOrderResp:
+    type: object
+  orderService.UpdateCostReq:
+    properties:
+      cost:
+        description: 费用
+        type: number
+      orderId:
+        description: 订单uuid
+        type: string
+    type: object
+  orderService.UpdateCostResp:
+    type: object
+  orderService.UploadDesignArtworkReq:
+    properties:
+      orderId:
+        description: 订单uuid
+        type: string
+    type: object
+  orderService.UploadDesignArtworkResp:
+    type: object
+  orderService.UploadPatternArtworkReq:
+    properties:
+      orderId:
+        description: 订单uuid
+        type: string
+    type: object
+  orderService.UploadPatternArtworkResp:
+    type: object
+  orderService.UploadPatternMakingProcessReq:
+    properties:
+      content:
+        description: 工艺内容
+        type: string
+      orderId:
+        description: 订单uuid
+        type: string
+    type: object
+  orderService.UploadPatternMakingProcessResp:
+    type: object
+  orderService.UploadSampleImageReq:
+    properties:
+      orderId:
+        description: 订单uuid
+        type: string
+      url:
+        description: 成衣图url地址
+        type: string
+    type: object
+  orderService.UploadSampleImageResp:
+    type: object
+  orderService.UploadShowVideoReq:
+    properties:
+      orderId:
+        description: 订单uuid
+        type: string
+      url:
+        description: 视频url地址
+        type: string
+    type: object
+  orderService.UploadShowVideoResp:
+    type: object
+  response.response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+  userService.DeductMarginReq:
+    properties:
+      amount:
+        description: 提现金额
+        type: integer
+      userId:
+        description: 用户uuid
+        type: string
+    type: object
+  userService.DeductMarginResp:
+    type: object
+  userService.GetMarginResp:
+    properties:
+      amount:
+        description: 保证金数量
+        type: integer
+    type: object
+  userService.KycReq:
+    properties:
+      name:
+        description: 姓名
+        type: string
+      phone:
+        description: 手机号
+        type: string
+      roleCode:
+        description: 申请成为的角色
+        type: integer
+      userId:
+        description: 用户uuid
+        type: string
+    type: object
+  userService.KycResp:
+    type: object
+  userService.LoginReq:
+    properties:
+      authCode:
+        description: 验证码
+        type: string
+      password:
+        description: 密码
+        type: string
+      phone:
+        description: 手机号
+        type: string
+    type: object
+  userService.LoginResp:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/userService.User'
+    type: object
+  userService.PayMarginReq:
+    properties:
+      amount:
+        description: 缴纳金额
+        type: integer
+      userId:
+        description: 用户uuid
+        type: string
+    type: object
+  userService.PayMarginResp:
+    type: object
+  userService.RegisterUserReq:
+    properties:
+      displayName:
+        description: 昵称，长度6-20
+        type: string
+      password:
+        description: 密码，长度6-20
+        type: string
+      phone:
+        description: 手机号
+        type: string
+    type: object
+  userService.RegisterUserResp:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+    type: object
+  userService.Role:
+    properties:
+      code:
+        description: 角色代码
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        description: 角色名
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  userService.User:
+    properties:
+      avatar:
+        description: 头像图片地址
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      displayName:
+        description: 昵称
+        type: string
+      id:
+        type: integer
+      margin:
+        description: 保证金
+        type: integer
+      password:
+        description: 密码
+        type: string
+      phone:
+        description: 手机号
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/userService.Role'
+        description: 角色
+      updatedAt:
+        type: string
+      userId:
+        description: 用户uuid
+        type: string
+    type: object
+  userService.WithdrawMarginReq:
+    properties:
+      amount:
+        description: 提现金额
+        type: integer
+      userId:
+        description: 用户uuid
+        type: string
+    type: object
+  userService.WithdrawMarginResp:
+    type: object
+info:
+  contact: {}
+paths:
+  /confirm:
+    post:
+      consumes:
+      - application/json
+      description: 甲方确认订单
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.ConfirmOrderReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.ConfirmOrderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 确认订单
+      tags:
+      - order模块
+  /order:
+    delete:
+      consumes:
+      - application/json
+      description: 甲方取消订单
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.CancelOrderReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.CancelOrderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 取消订单
+      tags:
+      - order模块
+  /order/all:
+    get:
+      consumes:
+      - application/json
+      description: 查询自己发布的or接手的需求订单
+      parameters:
+      - description: 用户uuid
+        in: query
+        name: userId
+        required: true
+        type: number
+      - description: '用户角色code: 0 = 管理员，1 = 普通用户，2 = 设计师，3 = 版型师'
+        in: query
+        name: roleCode
+        required: true
+        type: number
+      - description: '订单状态: 1 = 待接单, 2 = 已过期, 3 = 进行中, 4 = 已完成, 5 = 已取消'
+        in: query
+        name: status
+        required: true
+        type: number
+      - description: 页数
+        in: query
+        name: pageNum
+        required: true
+        type: number
+      - description: 每页条数
+        in: query
+        name: pageSize
+        required: true
+        type: number
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.ListOrdersResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 获取所有需求
+      tags:
+      - order模块
+  /order/cost:
+    post:
+      consumes:
+      - application/json
+      description: 修改订单费用
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.UpdateCostReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.UpdateCostResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 修改订单费用
+      tags:
+      - order模块
+  /order/designArtwork:
+    post:
+      consumes:
+      - application/json
+      description: 乙方上传设计图稿
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.UploadDesignArtworkReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.UploadDesignArtworkResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 上传设计图稿
+      tags:
+      - order模块
+  /order/patternArtwork:
+    post:
+      consumes:
+      - application/json
+      description: 乙方上传版型图稿
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.UploadPatternArtworkReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.UploadPatternArtworkResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 上传版型图稿
+      tags:
+      - order模块
+  /order/patternMakingProcess:
+    post:
+      consumes:
+      - application/json
+      description: 乙方上传版型制作工艺
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.UploadPatternMakingProcessReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.UploadPatternMakingProcessResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 上传版型制作工艺
+      tags:
+      - order模块
+  /order/reporter:
+    post:
+      consumes:
+      - application/json
+      description: 举报
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.ReportOrderReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.ReportOrderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 举报
+      tags:
+      - order模块
+  /order/sampleImage:
+    post:
+      consumes:
+      - application/json
+      description: 乙方上传样品成衣图
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.UploadSampleImageReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.UploadSampleImageResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 上传样品成衣图
+      tags:
+      - order模块
+  /order/showVideo:
+    post:
+      consumes:
+      - application/json
+      description: 乙方上传模特展示视频
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.UploadShowVideoReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.UploadShowVideoResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 上传模特展示视频
+      tags:
+      - order模块
+  /order/single:
+    get:
+      consumes:
+      - application/json
+      description: 查询自己发布的or接手的需求订单
+      parameters:
+      - description: 订单uuid
+        in: query
+        name: orderId
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.GetOrderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 获取单个需求
+      tags:
+      - order模块
+  /order/sum:
+    get:
+      consumes:
+      - application/json
+      description: 首页中，查询总交易订单次数+总交易金额
+      parameters:
+      - description: 无参数
+        in: query
+        name: None
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.GetOrderSumResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 查询总交易订单次数+总交易金额
+      tags:
+      - order模块
+    post:
+      consumes:
+      - application/json
+      description: 甲方发布需求
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.PublishOrderReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.PublishOrderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 发布需求
+      tags:
+      - order模块
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: 注册用户
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/userService.RegisterUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.RegisterUserResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 注册用户
+      tags:
+      - user模块
+  /user/authcode:
+    get:
+      consumes:
+      - application/json
+      description: 获取验证码
+      parameters:
+      - description: 无参数
+        in: query
+        name: None
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.RegisterUserResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 获取验证码
+      tags:
+      - user模块
+  /user/kyc:
+    post:
+      consumes:
+      - application/json
+      description: Kyc
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/userService.KycReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.KycResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: Kyc
+      tags:
+      - user模块
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: 登录
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/userService.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.LoginResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 登录
+      tags:
+      - user模块
+  /user/margin:
+    delete:
+      consumes:
+      - application/json
+      description: 管理员扣除保证金
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/userService.DeductMarginReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.DeductMarginResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 扣除保证金
+      tags:
+      - user模块
+    get:
+      consumes:
+      - application/json
+      description: 查询保证金
+      parameters:
+      - description: 用户uuid
+        in: query
+        name: userId
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.GetMarginResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 查询保证金
+      tags:
+      - user模块
+    post:
+      consumes:
+      - application/json
+      description: 乙方缴纳保证金
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/userService.PayMarginReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.PayMarginResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 缴纳保证金
+      tags:
+      - user模块
+    put:
+      consumes:
+      - application/json
+      description: 乙方保证金提现
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/userService.WithdrawMarginReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.WithdrawMarginResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 保证金提现
+      tags:
+      - user模块
+swagger: "2.0"

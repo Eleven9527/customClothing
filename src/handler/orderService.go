@@ -25,6 +25,8 @@ func RegisterOrderHandlers(r *gin.RouterGroup) {
 	r.POST("/patternMakingProcess", UploadPatternMakingProcessHandler) //上传版型制作工艺
 	r.POST("/sampleImage", UploadSampleImageHandler)                   //上传样品成衣图
 	r.POST("/showVideo", UploadShowVideoHandler)                       //上传模特展示视频
+	r.GET("/sum", GetOrderSumHandler)                                  //查询总交易订单次数+总交易金额
+	r.POST("", PublishOrderHandler)                                    //发布需求
 }
 
 func ListOrdersHandler(c *gin.Context) {
@@ -247,5 +249,31 @@ func UploadShowVideoHandler(c *gin.Context) {
 	}
 
 	resp, err := OrderSvc.UploadShowVideo(c, &req)
+	response.Success(c, err, resp)
+}
+
+func GetOrderSumHandler(c *gin.Context) {
+	req := orderService.GetOrderSumReq{}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.GetOrderSum(c, &req)
+	response.Success(c, err, resp)
+}
+
+func PublishOrderHandler(c *gin.Context) {
+	req := orderService.PublishOrderReq{}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.PublishOrder(c, &req)
 	response.Success(c, err, resp)
 }

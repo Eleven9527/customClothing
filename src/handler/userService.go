@@ -24,6 +24,7 @@ func RegisterUserHandlers(r *gin.RouterGroup) {
 	r.PUT("/margin", WithdrawHandler)      //保证金提现
 	r.DELETE("/margin", DeductHandler)     //扣除保证金
 }
+
 func RegisterHandler(c *gin.Context) {
 	req := userService.RegisterUserReq{}
 	if err := c.ShouldBind(&req); err != nil {
