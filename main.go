@@ -15,7 +15,7 @@ func main() {
 	r := gin.Default()
 
 	//初始化配置
-	config.Mode = config.DevFlag
+	config.Mode = config.PrdFlag
 	config.InitConfig()
 
 	//连接数据库
