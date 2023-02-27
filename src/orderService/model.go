@@ -344,3 +344,27 @@ type PublishOrderReq struct {
 
 type PublishOrderResp struct {
 }
+
+type GetOrderDetailReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+}
+
+type GetOrderDetailResp struct {
+	Detail *OrderDetail `json:"detail"`
+}
+
+type PickupOrderReq struct {
+	OrderId string `json:"orderId"` //订单uuid
+	UserId  string `json:"userId"`  //乙方uuid
+}
+
+type PickupOrderResp struct {
+}
+
+type DeleteOrderReq struct {
+	AdminId string `json:"adminId"` //管理员uuid
+	OrderId string `json:"orderId"` //订单uuid
+}
+
+type DeleteOrderResp struct {
+}

@@ -17,7 +17,7 @@ func RegisterOrderHandlers(r *gin.RouterGroup) {
 	r.GET("/all", ListOrdersHandler)                                   //查询所有订单
 	r.GET("/single", GetSingleOrderHandler)                            //查询单个订单
 	r.PUT("/cost", UpdateCostHandler)                                  //修改订单费用
-	r.DELETE("", CancelOrderHandler)                                   //取消订单
+	r.PUT("", CancelOrderHandler)                                      //取消订单
 	r.POST("/confirm", ConfirmOrderHandler)                            //确认订单
 	r.POST("/reporter", ReportOrderHandler)                            //举报
 	r.POST("/designArtwork", UploadDesignArtworkHandler)               //上传设计图稿
@@ -27,6 +27,9 @@ func RegisterOrderHandlers(r *gin.RouterGroup) {
 	r.POST("/showVideo", UploadShowVideoHandler)                       //上传模特展示视频
 	r.GET("/sum", GetOrderSumHandler)                                  //查询总交易订单次数+总交易金额
 	r.POST("", PublishOrderHandler)                                    //发布需求
+	r.GET("/detail", GetOrderDetailHandler)                            //查询需求详情
+	r.POST("/pickupOrder", PickupOrderHandler)                         //接单
+	r.DELETE("", DeleteOrderHandler)                                   //删除需求
 }
 
 func ListOrdersHandler(c *gin.Context) {
@@ -268,6 +271,10 @@ func GetOrderSumHandler(c *gin.Context) {
 func PublishOrderHandler(c *gin.Context) {
 	req := orderService.PublishOrderReq{}
 
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
 	//验证用户是否登录
 	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
 	if err != nil {
@@ -275,5 +282,58 @@ func PublishOrderHandler(c *gin.Context) {
 	}
 
 	resp, err := OrderSvc.PublishOrder(c, &req)
+	response.Success(c, err, resp)
+}
+
+func GetOrderDetailHandler(c *gin.Context) {
+	req := orderService.GetOrderDetailReq{
+		OrderId: c.Query("orderId"),
+	}
+
+	if len(req.OrderId) == 0 {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.GetOrderDetail(c, &req)
+	response.Success(c, err, resp)
+}
+
+func PickupOrderHandler(c *gin.Context) {
+	req := orderService.PickupOrderReq{}
+
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.PickupOrder(c, &req)
+	response.Success(c, err, resp)
+}
+
+func DeleteOrderHandler(c *gin.Context) {
+	req := orderService.PickupOrderReq{}
+
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.PickupOrder(c, &req)
 	response.Success(c, err, resp)
 }

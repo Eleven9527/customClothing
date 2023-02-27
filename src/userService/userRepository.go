@@ -17,6 +17,7 @@ type UserRepoService interface {
 	GetMargin(c context.Context, id string) (uint, errors.Error)
 	WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*WithdrawMarginResp, errors.Error)
 	DeductMargin(c context.Context, req *DeductMarginReq) (*DeductMarginResp, errors.Error)
+	UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) (*UpdateUserStatusResp, errors.Error)
 }
 
 type userRepoSvc struct {
@@ -147,4 +148,24 @@ func (r *userRepoSvc) DeductMargin(c context.Context, req *DeductMarginReq) (*De
 	r.db.Save(&u)
 
 	return &DeductMarginResp{}, nil
+}
+
+func (r *userRepoSvc) UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) (*UpdateUserStatusResp, errors.Error) {
+	status := false
+
+	switch req.Status {
+	case 1: //拉黑
+		status = true
+	case 2: //接触拉黑
+		status = false
+	}
+
+	if err := r.db.Where("user_id = ?", req.UserId).Update("ban = ?", status).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New(errors.USER_NOT_EXIST, "用户不存在")
+		}
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return &UpdateUserStatusResp{}, nil
 }

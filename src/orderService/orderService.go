@@ -3,6 +3,7 @@ package orderService
 import (
 	"context"
 	errors "customClothing/src/error"
+	"customClothing/src/userService"
 )
 
 type OrderService interface {
@@ -19,19 +20,22 @@ type OrderService interface {
 	UploadShowVideo(ctx context.Context, req *UploadShowVideoReq) (*UploadShowVideoResp, errors.Error)
 	GetOrderSum(ctx context.Context, req *GetOrderSumReq) (*GetOrderSumResp, errors.Error)
 	PublishOrder(ctx context.Context, req *PublishOrderReq) (*PublishOrderResp, errors.Error)
+	GetOrderDetail(ctx context.Context, req *GetOrderDetailReq) (*GetOrderDetailResp, errors.Error)
+	PickupOrder(ctx context.Context, req *PickupOrderReq) (*PickupOrderResp, errors.Error)
+	DeleteOrder(ctx context.Context, req *DeleteOrderReq) (*DeleteOrderResp, errors.Error)
 }
 
 type OrderSvc struct {
 	orderRepo RepoService
 	cache     CacheService
-	//userRepo  userService.RepoService
+	userRepo  userService.UserRepoService
 }
 
 func MakeUserService() OrderService {
 	return &OrderSvc{
 		orderRepo: MakeRepoService(),
 		cache:     MakeCacheService(),
-		//userRepo:  userService.MakeRepoService(),
+		userRepo:  userService.MakeUserRepoService(),
 	}
 }
 
@@ -108,7 +112,7 @@ func (o *OrderSvc) UpdateCost(ctx context.Context, req *UpdateCostReq) (*UpdateC
 //	@Failure		400				{object}	response.response
 //	@Failure		404				{object}	response.response
 //	@Failure		500				{object}	response.response
-//	@Router			/order [delete]
+//	@Router			/order [put]
 func (o *OrderSvc) CancelOrder(ctx context.Context, req *CancelOrderReq) (*CancelOrderResp, errors.Error) {
 	//只有待接单中的订单可以取消
 	order, err := o.orderRepo.GetSingleOrder(ctx, &GetOrderReq{OrderId: req.OrderId})
@@ -320,4 +324,83 @@ func (o *OrderSvc) GetOrderSum(ctx context.Context, req *GetOrderSumReq) (*GetOr
 //	@Router			/order/sum [post]
 func (o *OrderSvc) PublishOrder(ctx context.Context, req *PublishOrderReq) (*PublishOrderResp, errors.Error) {
 	return o.orderRepo.AddOrder(ctx, req)
+}
+
+//	@Summary		查询订单详情
+//	@Description	查询订单详情
+//	@Tags			order模块
+//	@Accept			json
+//	@Produce		json
+//	@Param			orderId			query		string	false	"订单uuid"
+//	@Param			Authorization	header		string	true	"token"
+//	@Success		200				{object}	GetOrderDetailResp
+//	@Failure		400				{object}	response.response
+//	@Failure		404				{object}	response.response
+//	@Failure		500				{object}	response.response
+//	@Router			/order/detail [get]
+func (o *OrderSvc) GetOrderDetail(ctx context.Context, req *GetOrderDetailReq) (*GetOrderDetailResp, errors.Error) {
+	return o.orderRepo.GetOrderDetail(ctx, req)
+}
+
+//	@Summary		接单
+//	@Description	乙方接单
+//	@Tags			order模块
+//	@Accept			json
+//	@Produce		json
+//	@Param			request			body		PickupOrderReq	true	"请求"
+//	@Param			Authorization	header		string			true	"token"
+//	@Success		200				{object}	PickupOrderResp
+//	@Failure		400				{object}	response.response
+//	@Failure		404				{object}	response.response
+//	@Failure		500				{object}	response.response
+//	@Router			/order/pickupOrder [post]
+func (o *OrderSvc) PickupOrder(ctx context.Context, req *PickupOrderReq) (*PickupOrderResp, errors.Error) {
+	//检查保证金
+	user, err := o.userRepo.GetUserById(ctx, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	if user.Margin == 0 {
+		return nil, errors.New(errors.MARGIN_ERROR, "用户未缴纳保证金")
+	}
+
+	//修改订单中的乙方
+	err = o.orderRepo.UpdatePartB(ctx, req.UserId, req.OrderId)
+
+	return &PickupOrderResp{}, err
+}
+
+//	@Summary		删除需求
+//	@Description	管理员删除需求
+//	@Tags			order模块
+//	@Accept			json
+//	@Produce		json
+//	@Param			request			body		DeleteOrderReq	true	"请求"
+//	@Param			Authorization	header		string			true	"token"
+//	@Success		200				{object}	DeleteOrderResp
+//	@Failure		400				{object}	response.response
+//	@Failure		404				{object}	response.response
+//	@Failure		500				{object}	response.response
+//	@Router			/order [post]
+func (o *OrderSvc) DeleteOrder(ctx context.Context, req *DeleteOrderReq) (*DeleteOrderResp, errors.Error) {
+	//只有管理员可以删除订单
+	user, err := o.userRepo.GetUserById(ctx, req.AdminId)
+	if err != nil {
+		return nil, err
+	}
+	if user.Role.Code != userService.ROLE_ADMIN {
+		return nil, errors.New(errors.ROLE_ERROR, "只有管理员可以删除订单")
+	}
+
+	//删除订单
+	err = o.orderRepo.DeleteOrder(ctx, req.OrderId)
+	if err != nil {
+		return nil, err
+	}
+
+	//删除订单详情
+	err = o.orderRepo.DeleteOrderDetail(ctx, req.OrderId)
+
+	return &DeleteOrderResp{}, err
 }

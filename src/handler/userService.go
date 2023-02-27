@@ -15,14 +15,15 @@ var UserSvc userService.UserService
 func RegisterUserHandlers(r *gin.RouterGroup) {
 	UserSvc = userService.MakeUserService()
 
-	r.GET("/authcode", GetAuthCodeHandler) //获取验证码
-	r.POST("", RegisterHandler)            //注册用户
-	r.POST("/login", LoginHandler)         //登录
-	r.POST("/kyc", KycHandler)             //kyc
-	r.POST("/margin", PayMarginHandler)    //缴纳保证金
-	r.GET("/margin", GetMarginHandler)     //查询保证金
-	r.PUT("/margin", WithdrawHandler)      //保证金提现
-	r.DELETE("/margin", DeductHandler)     //扣除保证金
+	r.GET("/authcode", GetAuthCodeHandler)    //获取验证码
+	r.POST("", RegisterHandler)               //注册用户
+	r.POST("/login", LoginHandler)            //登录
+	r.POST("/kyc", KycHandler)                //kyc
+	r.POST("/margin", PayMarginHandler)       //缴纳保证金
+	r.GET("/margin", GetMarginHandler)        //查询保证金
+	r.PUT("/margin", WithdrawHandler)         //保证金提现
+	r.DELETE("/margin", DeductHandler)        //扣除保证金
+	r.PUT("/status", UpdateUserStatusHandler) //拉黑、解除拉黑用户
 }
 
 func RegisterHandler(c *gin.Context) {
@@ -197,5 +198,21 @@ func DeductHandler(c *gin.Context) {
 	}
 
 	resp, err := UserSvc.Kyc(c, &req)
+	response.Success(c, err, resp)
+}
+
+func UpdateUserStatusHandler(c *gin.Context) {
+	req := userService.UpdateUserStatusReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := UserSvc.UpdateUserStatus(c, &req)
 	response.Success(c, err, resp)
 }

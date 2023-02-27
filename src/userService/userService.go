@@ -16,6 +16,7 @@ type UserService interface {
 	GetMargin(c context.Context, req *GetMarginReq) (*GetMarginResp, errors.Error)
 	WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*WithdrawMarginResp, errors.Error)
 	DeductMargin(c context.Context, req *DeductMarginReq) (*DeductMarginResp, errors.Error)
+	UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) (*UpdateUserStatusResp, errors.Error)
 }
 
 type UserSvc struct {
@@ -59,6 +60,7 @@ func (u *UserSvc) RegisterUser(c context.Context, req *RegisterUserReq) (*Regist
 //	@Failure		404		{object}	response.response
 //	@Failure		500		{object}	response.response
 //	@Router			/user/authcode [get]
+//
 // GetAuthCode todo:生成图片验证码
 func (u *UserSvc) GetAuthCode(c context.Context, req *GetAuthCodeReq) (*GetAuthCodeResp, errors.Error) {
 	return &GetAuthCodeResp{AuthCode: "12345"}, nil
@@ -268,4 +270,31 @@ func (u *UserSvc) DeductMargin(c context.Context, req *DeductMarginReq) (*Deduct
 	})
 
 	return &DeductMarginResp{}, nil
+}
+
+//	@Summary		拉黑、解除拉黑用户
+//	@Description	管理员拉黑、解除拉黑用户
+//	@Tags			user模块
+//	@Accept			json
+//	@Produce		json
+//	@Param			request			body		UpdateUserStatusReq	true	"请求"
+//	@Param			Authorization	header		string				true	"token"
+//	@Success		200				{object}	UpdateUserStatusResp
+//	@Failure		400				{object}	response.response
+//	@Failure		404				{object}	response.response
+//	@Failure		500				{object}	response.response
+//	@Router			/user/status [put]
+func (u *UserSvc) UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) (*UpdateUserStatusResp, errors.Error) {
+	//只有管理员可以拉黑用户
+	user, err := u.userRepo.GetUserById(c, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	if user.Role.Code != ROLE_ADMIN {
+		return nil, errors.New(errors.ROLE_ERROR, "只有管理员可以拉黑用户")
+	}
+
+	_, err = u.userRepo.UpdateUserStatus(c, req)
+
+	return &UpdateUserStatusResp{}, err
 }

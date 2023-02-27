@@ -23,6 +23,10 @@ type RepoService interface {
 	UpdateShowVideo(ctx context.Context, req *UpdateShowVideoReq) (*UpdateShowVideoResp, errors.Error)
 	GetOrderSum(ctx context.Context, req *GetOrderSumReq) (*GetOrderSumResp, errors.Error)
 	AddOrder(ctx context.Context, req *PublishOrderReq) (*PublishOrderResp, errors.Error)
+	GetOrderDetail(ctx context.Context, req *GetOrderDetailReq) (*GetOrderDetailResp, errors.Error)
+	UpdatePartB(ctx context.Context, userId, orderId string) errors.Error
+	DeleteOrder(ctx context.Context, orderId string) errors.Error
+	DeleteOrderDetail(ctx context.Context, orderId string) errors.Error
 }
 
 type repoSvc struct {
@@ -258,4 +262,52 @@ func (r *repoSvc) AddOrder(ctx context.Context, req *PublishOrderReq) (*PublishO
 	}
 
 	return &PublishOrderResp{}, nil
+}
+
+func (r *repoSvc) GetOrderDetail(ctx context.Context, req *GetOrderDetailReq) (*GetOrderDetailResp, errors.Error) {
+	d := OrderDetail{}
+
+	if err := r.detalTable.Where("order_id = ?", req.OrderId).First(&d).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New(errors.ORDER_DETAIL_NOT_EXIST, "订单详情不存在")
+		}
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return &GetOrderDetailResp{Detail: &d}, nil
+}
+
+func (r *repoSvc) UpdatePartB(ctx context.Context, userId, orderId string) errors.Error {
+	if err := r.orderTable.Where("order_id = ?", orderId).Update("part_b = ?", userId).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
+		}
+		return errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return nil
+}
+
+func (r *repoSvc) DeleteOrder(ctx context.Context, orderId string) errors.Error {
+	o := Order{OrderId: orderId}
+	if err := r.orderTable.Delete(&o).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
+		}
+		return errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return nil
+}
+
+func (r *repoSvc) DeleteOrderDetail(ctx context.Context, orderId string) errors.Error {
+	o := OrderDetail{OrderId: orderId}
+	if err := r.detalTable.Delete(&o).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.New(errors.ORDER_NOT_EXIST, "订单不存在")
+		}
+		return errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return nil
 }

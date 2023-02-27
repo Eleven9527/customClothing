@@ -76,7 +76,7 @@ const docTemplate = `{
             }
         },
         "/order": {
-            "delete": {
+            "put": {
                 "description": "甲方取消订单",
                 "consumes": [
                     "application/json"
@@ -111,6 +111,63 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/orderService.CancelOrderResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "管理员删除需求",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "order模块"
+                ],
+                "summary": "删除需求",
+                "parameters": [
+                    {
+                        "description": "请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orderService.DeleteOrderReq"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/orderService.DeleteOrderResp"
                         }
                     },
                     "400": {
@@ -337,6 +394,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/detail": {
+            "get": {
+                "description": "查询订单详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "order模块"
+                ],
+                "summary": "查询订单详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "订单uuid",
+                        "name": "orderId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/orderService.GetOrderDetailResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    }
+                }
+            }
+        },
         "/order/patternArtwork": {
             "post": {
                 "description": "乙方上传版型图稿",
@@ -432,6 +545,65 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/orderService.UploadPatternMakingProcessResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/pickupOrder": {
+            "post": {
+                "description": "乙方接单",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "order模块"
+                ],
+                "summary": "接单",
+                "parameters": [
+                    {
+                        "description": "请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orderService.PickupOrderReq"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/orderService.PickupOrderResp"
                         }
                     },
                     "400": {
@@ -1241,6 +1413,65 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/status": {
+            "put": {
+                "description": "管理员拉黑、解除拉黑用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user模块"
+                ],
+                "summary": "拉黑、解除拉黑用户",
+                "parameters": [
+                    {
+                        "description": "请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/userService.UpdateUserStatusReq"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/userService.UpdateUserStatusResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1364,6 +1595,30 @@ const docTemplate = `{
                 }
             }
         },
+        "orderService.DeleteOrderReq": {
+            "type": "object",
+            "properties": {
+                "adminId": {
+                    "description": "管理员uuid",
+                    "type": "string"
+                },
+                "orderId": {
+                    "description": "订单uuid",
+                    "type": "string"
+                }
+            }
+        },
+        "orderService.DeleteOrderResp": {
+            "type": "object"
+        },
+        "orderService.GetOrderDetailResp": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "$ref": "#/definitions/orderService.OrderDetail"
+                }
+            }
+        },
         "orderService.GetOrderResp": {
             "type": "object",
             "properties": {
@@ -1458,6 +1713,91 @@ const docTemplate = `{
                 }
             }
         },
+        "orderService.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "收货地址",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/orderService.Address"
+                        }
+                    ]
+                },
+                "confirmSteps": {
+                    "description": "步骤确认",
+                    "type": "string"
+                },
+                "consumptionPositioning": {
+                    "description": "消费定位",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/orderService.ConsumptionPositioning"
+                        }
+                    ]
+                },
+                "cost": {
+                    "description": "费用",
+                    "type": "number"
+                },
+                "deadLine": {
+                    "description": "截止时间",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "需求大致介绍",
+                    "type": "string"
+                },
+                "orderId": {
+                    "description": "订单uuid",
+                    "type": "string"
+                },
+                "part": {
+                    "description": "制作类别",
+                    "type": "string"
+                },
+                "patternCost": {
+                    "description": "版型费用",
+                    "type": "number"
+                },
+                "patternRequest": {
+                    "description": "版型工艺制作要求",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/orderService.PatternRequest"
+                        }
+                    ]
+                },
+                "productionTime": {
+                    "description": "制作天数要求",
+                    "type": "integer"
+                },
+                "provideFabric": {
+                    "description": "是否需要提供面料",
+                    "type": "boolean"
+                },
+                "referenceSize": {
+                    "description": "参考尺寸",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/orderService.ReferenceSize"
+                        }
+                    ]
+                },
+                "sampleCost": {
+                    "description": "成衣样衣费用",
+                    "type": "number"
+                },
+                "style": {
+                    "description": "风格描述",
+                    "type": "string"
+                },
+                "wearingOccasion": {
+                    "description": "穿着场合",
+                    "type": "string"
+                }
+            }
+        },
         "orderService.PatternRequest": {
             "type": "object",
             "properties": {
@@ -1482,6 +1822,22 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "orderService.PickupOrderReq": {
+            "type": "object",
+            "properties": {
+                "orderId": {
+                    "description": "订单uuid",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "乙方uuid",
+                    "type": "string"
+                }
+            }
+        },
+        "orderService.PickupOrderResp": {
+            "type": "object"
         },
         "orderService.PublishOrderReq": {
             "type": "object",
@@ -1728,6 +2084,9 @@ const docTemplate = `{
                 "data": {},
                 "msg": {
                     "type": "string"
+                },
+                "time": {
+                    "type": "string"
                 }
             }
         },
@@ -1735,7 +2094,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "description": "提现金额",
+                    "description": "扣除金额",
                     "type": "integer"
                 },
                 "userId": {
@@ -1877,12 +2236,36 @@ const docTemplate = `{
                 }
             }
         },
+        "userService.UpdateUserStatusReq": {
+            "type": "object",
+            "properties": {
+                "adminId": {
+                    "description": "管理员uuid",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态:1=拉黑，2=解除拉黑",
+                    "type": "integer"
+                },
+                "userId": {
+                    "description": "用户uuid",
+                    "type": "string"
+                }
+            }
+        },
+        "userService.UpdateUserStatusResp": {
+            "type": "object"
+        },
         "userService.User": {
             "type": "object",
             "properties": {
                 "avatar": {
                     "description": "头像图片地址",
                     "type": "string"
+                },
+                "ban": {
+                    "description": "用户是否被拉黑",
+                    "type": "boolean"
                 },
                 "createdAt": {
                     "type": "string"

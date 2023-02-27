@@ -84,6 +84,22 @@ definitions:
         description: 职业：自填
         type: string
     type: object
+  orderService.DeleteOrderReq:
+    properties:
+      adminId:
+        description: 管理员uuid
+        type: string
+      orderId:
+        description: 订单uuid
+        type: string
+    type: object
+  orderService.DeleteOrderResp:
+    type: object
+  orderService.GetOrderDetailResp:
+    properties:
+      detail:
+        $ref: '#/definitions/orderService.OrderDetail'
+    type: object
   orderService.GetOrderResp:
     properties:
       order:
@@ -150,6 +166,61 @@ definitions:
       updatedAt:
         type: string
     type: object
+  orderService.OrderDetail:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/orderService.Address'
+        description: 收货地址
+      confirmSteps:
+        description: 步骤确认
+        type: string
+      consumptionPositioning:
+        allOf:
+        - $ref: '#/definitions/orderService.ConsumptionPositioning'
+        description: 消费定位
+      cost:
+        description: 费用
+        type: number
+      deadLine:
+        description: 截止时间
+        type: string
+      description:
+        description: 需求大致介绍
+        type: string
+      orderId:
+        description: 订单uuid
+        type: string
+      part:
+        description: 制作类别
+        type: string
+      patternCost:
+        description: 版型费用
+        type: number
+      patternRequest:
+        allOf:
+        - $ref: '#/definitions/orderService.PatternRequest'
+        description: 版型工艺制作要求
+      productionTime:
+        description: 制作天数要求
+        type: integer
+      provideFabric:
+        description: 是否需要提供面料
+        type: boolean
+      referenceSize:
+        allOf:
+        - $ref: '#/definitions/orderService.ReferenceSize'
+        description: 参考尺寸
+      sampleCost:
+        description: 成衣样衣费用
+        type: number
+      style:
+        description: 风格描述
+        type: string
+      wearingOccasion:
+        description: 穿着场合
+        type: string
+    type: object
   orderService.PatternRequest:
     properties:
       contour:
@@ -167,6 +238,17 @@ definitions:
       patternStructure:
         description: 版型结构：立体或者平面；
         type: integer
+    type: object
+  orderService.PickupOrderReq:
+    properties:
+      orderId:
+        description: 订单uuid
+        type: string
+      userId:
+        description: 乙方uuid
+        type: string
+    type: object
+  orderService.PickupOrderResp:
     type: object
   orderService.PublishOrderReq:
     properties:
@@ -331,11 +413,13 @@ definitions:
       data: {}
       msg:
         type: string
+      time:
+        type: string
     type: object
   userService.DeductMarginReq:
     properties:
       amount:
-        description: 提现金额
+        description: 扣除金额
         type: integer
       userId:
         description: 用户uuid
@@ -432,11 +516,28 @@ definitions:
       updatedAt:
         type: string
     type: object
+  userService.UpdateUserStatusReq:
+    properties:
+      adminId:
+        description: 管理员uuid
+        type: string
+      status:
+        description: 状态:1=拉黑，2=解除拉黑
+        type: integer
+      userId:
+        description: 用户uuid
+        type: string
+    type: object
+  userService.UpdateUserStatusResp:
+    type: object
   userService.User:
     properties:
       avatar:
         description: 头像图片地址
         type: string
+      ban:
+        description: 用户是否被拉黑
+        type: boolean
       createdAt:
         type: string
       deletedAt:
@@ -519,7 +620,45 @@ paths:
       tags:
       - order模块
   /order:
-    delete:
+    post:
+      consumes:
+      - application/json
+      description: 管理员删除需求
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.DeleteOrderReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.DeleteOrderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 删除需求
+      tags:
+      - order模块
+    put:
       consumes:
       - application/json
       description: 甲方取消订单
@@ -693,6 +832,43 @@ paths:
       summary: 上传设计图稿
       tags:
       - order模块
+  /order/detail:
+    get:
+      consumes:
+      - application/json
+      description: 查询订单详情
+      parameters:
+      - description: 订单uuid
+        in: query
+        name: orderId
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.GetOrderDetailResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 查询订单详情
+      tags:
+      - order模块
   /order/patternArtwork:
     post:
       consumes:
@@ -769,6 +945,45 @@ paths:
           schema:
             $ref: '#/definitions/response.response'
       summary: 上传版型制作工艺
+      tags:
+      - order模块
+  /order/pickupOrder:
+    post:
+      consumes:
+      - application/json
+      description: 乙方接单
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/orderService.PickupOrderReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.PickupOrderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 接单
       tags:
       - order模块
   /order/reporter:
@@ -1290,6 +1505,45 @@ paths:
           schema:
             $ref: '#/definitions/response.response'
       summary: 保证金提现
+      tags:
+      - user模块
+  /user/status:
+    put:
+      consumes:
+      - application/json
+      description: 管理员拉黑、解除拉黑用户
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/userService.UpdateUserStatusReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.UpdateUserStatusResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 拉黑、解除拉黑用户
       tags:
       - user模块
 swagger: "2.0"

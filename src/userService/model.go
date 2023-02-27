@@ -36,6 +36,7 @@ type User struct {
 	Role        Role   `json:"role" gorm:"comment:'角色'"`        //角色
 	Margin      uint   `json:"margin" gorm:"comment:'保证金'"`     //保证金
 	Phone       string `json:"phone" gorm:"comment:'手机号'"`      //手机号
+	Ban         bool   `json:"ban" gorm:"comment:'用户是否被拉黑'"`    //用户是否被拉黑
 	gorm.Model
 }
 
@@ -236,8 +237,17 @@ type WithdrawMarginResp struct {
 
 type DeductMarginReq struct {
 	UserId string `json:"userId"` //用户uuid
-	Amount uint   `json:"amount"` //提现金额
+	Amount uint   `json:"amount"` //扣除金额
 }
 
 type DeductMarginResp struct {
+}
+
+type UpdateUserStatusReq struct {
+	AdminId string `json:"adminId"` //管理员uuid
+	UserId  string `json:"userId"`  //用户uuid
+	Status  int    `json:"status"`  //状态:1=拉黑，2=解除拉黑
+}
+
+type UpdateUserStatusResp struct {
 }
