@@ -4,6 +4,7 @@ import (
 	"context"
 	"customClothing/src/db"
 	errors "customClothing/src/error"
+	"customClothing/src/utils/uuid"
 	"github.com/jinzhu/gorm"
 )
 
@@ -15,25 +16,28 @@ type UserRepoService interface {
 	AddKyc(c context.Context, req *Kyc) errors.Error
 	AddMargin(c context.Context, req *AddMarginReq) (*AddMarginResp, errors.Error)
 	GetMargin(c context.Context, id string) (uint, errors.Error)
-	WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*WithdrawMarginResp, errors.Error)
+	WithdrawMarginApplication(c context.Context, req *WithdrawMarginApplicationReq) (*WithdrawMarginApplicationResp, errors.Error)
 	DeductMargin(c context.Context, req *DeductMarginReq) (*DeductMarginResp, errors.Error)
 	UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) (*UpdateUserStatusResp, errors.Error)
+	ReviewMarginWithdrawApplication(c context.Context, req *ReviewMarginWithdrawApplicationReq) (*ReviewMarginWithdrawApplicationResp, errors.Error)
 }
 
 type userRepoSvc struct {
-	db *gorm.DB
+	userDb              *gorm.DB
+	marginWithdrawAppDb *gorm.DB
 }
 
 func MakeUserRepoService() UserRepoService {
 	return &userRepoSvc{
-		db: db.Db().Table(User{}.TableName()),
+		userDb:              db.Db().Table(User{}.TableName()),
+		marginWithdrawAppDb: db.Db().Table(MarginWithdrawApplication{}.TableName()),
 	}
 }
 
 func (r *userRepoSvc) AddUser(c context.Context, req *RegisterUserReq) (*RegisterUserResp, errors.Error) {
 	//检查用户是否已存在
 	var count int64
-	if err := r.db.Where("phone = ?", req.Phone).Count(&count); err != nil {
+	if err := r.userDb.Where("phone = ?", req.Phone).Count(&count); err != nil {
 		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 
@@ -42,7 +46,7 @@ func (r *userRepoSvc) AddUser(c context.Context, req *RegisterUserReq) (*Registe
 	}
 
 	//新增用户
-	if err := r.db.Create(&req).Error; err != nil {
+	if err := r.userDb.Create(&req).Error; err != nil {
 		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 
@@ -54,7 +58,7 @@ func (r *userRepoSvc) AddUser(c context.Context, req *RegisterUserReq) (*Registe
 
 func (r *userRepoSvc) GetUserByPhone(c context.Context, phone string) (*User, errors.Error) {
 	u := User{}
-	if err := r.db.Where("phone = ?", phone).First(&u); err != nil {
+	if err := r.userDb.Where("phone = ?", phone).First(&u); err != nil {
 		return nil, errors.New(errors.USER_NOT_EXIST, "用户不存在")
 	}
 
@@ -63,7 +67,7 @@ func (r *userRepoSvc) GetUserByPhone(c context.Context, phone string) (*User, er
 
 func (r *userRepoSvc) GetRoleByCode(c context.Context, code int) (*Role, errors.Error) {
 	role := &Role{}
-	if err := r.db.Where("code = ?", code); err != nil {
+	if err := r.userDb.Where("code = ?", code); err != nil {
 		return nil, errors.New(errors.ROLE_NOT_EXIST, "角色不存在")
 	}
 
@@ -81,7 +85,7 @@ func (r *userRepoSvc) AddKyc(c context.Context, k *Kyc) errors.Error {
 func (r *userRepoSvc) GetUserById(c context.Context, id string) (*User, errors.Error) {
 	u := User{}
 
-	if err := r.db.Where("user_id = ?", id).First(&u).Error; err != nil {
+	if err := r.userDb.Where("user_id = ?", id).First(&u).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.USER_NOT_EXIST, "该用户不存在")
 		}
@@ -93,7 +97,7 @@ func (r *userRepoSvc) GetUserById(c context.Context, id string) (*User, errors.E
 
 func (r *userRepoSvc) AddMargin(c context.Context, req *AddMarginReq) (*AddMarginResp, errors.Error) {
 	u := User{}
-	if err := r.db.Where("user_id = ?", req.UserId).First(&u).Error; err != nil {
+	if err := r.userDb.Where("user_id = ?", req.UserId).First(&u).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.USER_NOT_EXIST, "用户不存在")
 		}
@@ -101,14 +105,14 @@ func (r *userRepoSvc) AddMargin(c context.Context, req *AddMarginReq) (*AddMargi
 	}
 
 	u.Margin += req.Amount
-	r.db.Save(&u)
+	r.userDb.Save(&u)
 
 	return &AddMarginResp{}, nil
 }
 
 func (r *userRepoSvc) GetMargin(c context.Context, id string) (uint, errors.Error) {
 	u := User{}
-	if err := r.db.Where("user_id = ?", id).First(&u).Error; err != nil {
+	if err := r.userDb.Where("user_id = ?", id).First(&u).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return 0, errors.New(errors.USER_NOT_EXIST, "用户不存在")
 		}
@@ -118,26 +122,24 @@ func (r *userRepoSvc) GetMargin(c context.Context, id string) (uint, errors.Erro
 	return u.Margin, nil
 }
 
-func (r *userRepoSvc) WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*WithdrawMarginResp, errors.Error) {
-	u := User{}
-	if err := r.db.Where("user_id = ?", req.UserId).First(&u).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New(errors.USER_NOT_EXIST, "用户不存在")
-		}
+func (r *userRepoSvc) WithdrawMarginApplication(c context.Context, req *WithdrawMarginApplicationReq) (*WithdrawMarginApplicationResp, errors.Error) {
+	app := MarginWithdrawApplication{
+		ApplicationId: uuid.BuildUuid(),
+		UserId:        req.UserId,
+		Amount:        req.Amount,
+		Status:        MarginWithdrawStatus[1],
+	}
+
+	if err := r.marginWithdrawAppDb.Create(&app).Error; err != nil {
 		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 
-	//todo:转账给用户
-
-	u.Margin -= req.Amount
-	r.db.Save(&u)
-
-	return &WithdrawMarginResp{}, nil
+	return &WithdrawMarginApplicationResp{}, nil
 }
 
 func (r *userRepoSvc) DeductMargin(c context.Context, req *DeductMarginReq) (*DeductMarginResp, errors.Error) {
 	u := User{}
-	if err := r.db.Where("user_id = ?", req.UserId).First(&u).Error; err != nil {
+	if err := r.userDb.Where("user_id = ?", req.UserId).First(&u).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.USER_NOT_EXIST, "用户不存在")
 		}
@@ -145,7 +147,7 @@ func (r *userRepoSvc) DeductMargin(c context.Context, req *DeductMarginReq) (*De
 	}
 
 	u.Margin -= req.Amount
-	r.db.Save(&u)
+	r.userDb.Save(&u)
 
 	return &DeductMarginResp{}, nil
 }
@@ -160,7 +162,7 @@ func (r *userRepoSvc) UpdateUserStatus(c context.Context, req *UpdateUserStatusR
 		status = false
 	}
 
-	if err := r.db.Where("user_id = ?", req.UserId).Update("ban = ?", status).Error; err != nil {
+	if err := r.userDb.Where("user_id = ?", req.UserId).Update("ban = ?", status).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.USER_NOT_EXIST, "用户不存在")
 		}
@@ -168,4 +170,30 @@ func (r *userRepoSvc) UpdateUserStatus(c context.Context, req *UpdateUserStatusR
 	}
 
 	return &UpdateUserStatusResp{}, nil
+}
+
+func (r *userRepoSvc) ReviewMarginWithdrawApplication(c context.Context, req *ReviewMarginWithdrawApplicationReq) (*ReviewMarginWithdrawApplicationResp, errors.Error) {
+	if err := r.marginWithdrawAppDb.Where("application_id = ?", req.ApplicationId).Update("status = ?", MarginWithdrawStatus[req.Status]).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New(errors.MARGIN_WITHDRAW_APPLICATION_NOT_EXIST, "保证金提现申请记录不存在")
+		}
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	if req.Status == 2 {
+		u := User{}
+		if err := r.userDb.Where("user_id = ?", req.UserId).First(&u).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, errors.New(errors.USER_NOT_EXIST, "用户不存在")
+			}
+			return nil, errors.New(errors.INTERNAL_ERROR, "")
+		}
+
+		u.Margin -= req.Amount
+		r.userDb.Save(&u)
+
+		//todo:转账给用户
+	}
+
+	return &ReviewMarginWithdrawApplicationResp{}, nil
 }

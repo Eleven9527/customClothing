@@ -27,17 +27,20 @@ type RepoService interface {
 	UpdatePartB(ctx context.Context, userId, orderId string) errors.Error
 	DeleteOrder(ctx context.Context, orderId string) errors.Error
 	DeleteOrderDetail(ctx context.Context, orderId string) errors.Error
+	ListReporters(ctx context.Context, req *ListReportersReq) (*ListReportersResp, errors.Error)
 }
 
 type repoSvc struct {
-	orderTable *gorm.DB
-	detalTable *gorm.DB
+	orderTable    *gorm.DB
+	detalTable    *gorm.DB
+	reporterTable *gorm.DB
 }
 
 func MakeRepoService() RepoService {
 	return &repoSvc{
-		orderTable: db.Db().Table(Order{}.TableName()),
-		detalTable: db.Db().Table(OrderDetail{}.TableName()),
+		orderTable:    db.Db().Table(Order{}.TableName()),
+		detalTable:    db.Db().Table(OrderDetail{}.TableName()),
+		reporterTable: db.Db().Table(Reporter{}.TableName()),
 	}
 }
 
@@ -125,7 +128,7 @@ func (r *repoSvc) AddReporter(ctx context.Context, req *ReportOrderReq) (*Report
 		OrderId:        req.OrderId,
 	}
 
-	if err := r.orderTable.Create(&reporter).Error; err != nil {
+	if err := r.reporterTable.Create(&reporter).Error; err != nil {
 		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 
@@ -310,4 +313,22 @@ func (r *repoSvc) DeleteOrderDetail(ctx context.Context, orderId string) errors.
 	}
 
 	return nil
+}
+
+func (r *repoSvc) ListReporters(ctx context.Context, req *ListReportersReq) (*ListReportersResp, errors.Error) {
+	list := make([]*Reporter, 0)
+	var count int64
+
+	if err := r.reporterTable.Where("deleted_at != null").Count(&count).Error; err != nil {
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	if err := r.reporterTable.Where("created_at >= ? AND created_at <= ?", req.StartTime, req.EndTime).Offset(req.PageSize * (req.PageNum - 1)).Error; err != nil {
+		return nil, errors.New(errors.INTERNAL_ERROR, "")
+	}
+
+	return &ListReportersResp{
+		Total: count,
+		List:  list,
+	}, nil
 }

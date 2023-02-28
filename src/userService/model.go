@@ -28,6 +28,13 @@ const (
 	MARGIN_OP_WITHDRAW = 3 //提现
 )
 
+// 保证金提现状态
+var MarginWithdrawStatus = map[int]string{
+	1: "Pending", //待审核
+	2: "Approve", //同意
+	3: "Reject",  //拒绝
+}
+
 type User struct {
 	UserId      string `json:"userId" gorm:"comment:'用户uuid'"`  //用户uuid
 	DisplayName string `json:"displayName" gorm:"comment:'昵称'"` //昵称
@@ -79,6 +86,19 @@ func (Kyc) TableName() string {
 	return "kyc"
 }
 
+type MarginWithdrawApplication struct {
+	ApplicationId string `json:"applicationId" gorm:"comment:'申请记录uuid'"` //申请记录uuid
+	UserId        string `json:"userId" gorm:"comment:'申请人uuid'"`         //申请人uuid
+	Amount        uint   `json:"amount" gorm:"comment:'提现金额'"`            //提现金额
+	Status        string `json:"status" gorm:"comment:'状态'"`              //状态
+	AdminId       string `json:"adminId" gorm:"comment:'管理员uuid'"`        //管理员uuid
+	gorm.Model
+}
+
+func (MarginWithdrawApplication) TableName() string {
+	return "marginWithdrawApplication"
+}
+
 func InitUserServiceDb() {
 	if err := db.Db().AutoMigrate(&User{}).Error; err != nil {
 		panic("初始化user表失败:" + err.Error())
@@ -100,6 +120,11 @@ func InitUserServiceDb() {
 		panic("初始化MarginRecord表失败:" + err.Error())
 	}
 	fmt.Println("MarginRecord表初始化成功!")
+
+	if err := db.Db().AutoMigrate(&MarginWithdrawApplication{}).Error; err != nil {
+		panic("初始化MarginWithdrawApplication表失败:" + err.Error())
+	}
+	fmt.Println("MarginWithdrawApplication表初始化成功!")
 }
 
 func initRoles() {
@@ -227,12 +252,12 @@ type GetMarginResp struct {
 	Amount uint `json:"amount"` //保证金数量
 }
 
-type WithdrawMarginReq struct {
+type WithdrawMarginApplicationReq struct {
 	UserId string `json:"userId"` //用户uuid
 	Amount uint   `json:"amount"` //提现金额
 }
 
-type WithdrawMarginResp struct {
+type WithdrawMarginApplicationResp struct {
 }
 
 type DeductMarginReq struct {
@@ -250,4 +275,15 @@ type UpdateUserStatusReq struct {
 }
 
 type UpdateUserStatusResp struct {
+}
+
+type ReviewMarginWithdrawApplicationReq struct {
+	AdminId       string `json:"adminId"`       //管理员uuid
+	UserId        string `json:"userId"`        //申请人uuid
+	ApplicationId string `json:"applicationId"` //申请记录uuid
+	Amount        uint   `json:"amount"`        //申请金额
+	Status        int    `json:"status"`        //审核结果：1=同意，2=拒绝
+}
+
+type ReviewMarginWithdrawApplicationResp struct {
 }

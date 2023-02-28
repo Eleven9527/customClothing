@@ -23,6 +23,7 @@ type OrderService interface {
 	GetOrderDetail(ctx context.Context, req *GetOrderDetailReq) (*GetOrderDetailResp, errors.Error)
 	PickupOrder(ctx context.Context, req *PickupOrderReq) (*PickupOrderResp, errors.Error)
 	DeleteOrder(ctx context.Context, req *DeleteOrderReq) (*DeleteOrderResp, errors.Error)
+	ListReporters(ctx context.Context, req *ListReportersReq) (*ListReportersResp, errors.Error)
 }
 
 type OrderSvc struct {
@@ -39,7 +40,7 @@ func MakeUserService() OrderService {
 	}
 }
 
-//	@Summary		获取所有需求
+//	@Summary		获取自己发布的or接手的所有需求
 //	@Description	查询自己发布的or接手的需求订单
 //	@Tags			order模块
 //	@Accept			json
@@ -403,4 +404,23 @@ func (o *OrderSvc) DeleteOrder(ctx context.Context, req *DeleteOrderReq) (*Delet
 	err = o.orderRepo.DeleteOrderDetail(ctx, req.OrderId)
 
 	return &DeleteOrderResp{}, err
+}
+
+//	@Summary		查询订单详情
+//	@Description	查询订单详情
+//	@Tags			order模块
+//	@Accept			json
+//	@Produce		json
+//	@Param			pageSize		query		string	false	"每页条数"
+//	@Param			pageNum			query		string	false	"pageNum"
+//	@Param			startTime		query		string	false	"开始时间"
+//	@Param			endTime			query		string	false	"结束时间"
+//	@Param			Authorization	header		string	true	"token"
+//	@Success		200				{object}	ListReportersResp
+//	@Failure		400				{object}	response.response
+//	@Failure		404				{object}	response.response
+//	@Failure		500				{object}	response.response
+//	@Router			/order/reporter [get]
+func (o *OrderSvc) ListReporters(ctx context.Context, req *ListReportersReq) (*ListReportersResp, errors.Error) {
+	return o.orderRepo.ListReporters(ctx, req)
 }

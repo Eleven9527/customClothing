@@ -14,9 +14,10 @@ type UserService interface {
 	VerifyToken(tk []byte) errors.Error
 	PayMargin(c context.Context, req *PayMarginReq) (*PayMarginResp, errors.Error)
 	GetMargin(c context.Context, req *GetMarginReq) (*GetMarginResp, errors.Error)
-	WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*WithdrawMarginResp, errors.Error)
+	WithdrawMarginApplication(c context.Context, req *WithdrawMarginApplicationReq) (*WithdrawMarginApplicationResp, errors.Error)
 	DeductMargin(c context.Context, req *DeductMarginReq) (*DeductMarginResp, errors.Error)
 	UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) (*UpdateUserStatusResp, errors.Error)
+	ReviewMarginWithdrawApplication(c context.Context, req *ReviewMarginWithdrawApplicationReq) (*ReviewMarginWithdrawApplicationResp, errors.Error)
 }
 
 type UserSvc struct {
@@ -205,21 +206,21 @@ func (u *UserSvc) GetMargin(c context.Context, req *GetMarginReq) (*GetMarginRes
 	return &GetMarginResp{Amount: amount}, nil
 }
 
-//	@Summary		保证金提现
-//	@Description	乙方保证金提现
+//	@Summary		保证金退回
+//	@Description	乙方申请保证金退回
 //	@Tags			user模块
 //	@Accept			json
 //	@Produce		json
-//	@Param			request			body		WithdrawMarginReq	true	"请求"
-//	@Param			Authorization	header		string				true	"token"
-//	@Success		200				{object}	WithdrawMarginResp
+//	@Param			request			body		WithdrawMarginApplicationReq	true	"请求"
+//	@Param			Authorization	header		string							true	"token"
+//	@Success		200				{object}	WithdrawMarginApplicationResp
 //	@Failure		400				{object}	response.response
 //	@Failure		404				{object}	response.response
 //	@Failure		500				{object}	response.response
-//	@Router			/user/margin [put]
-func (u *UserSvc) WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*WithdrawMarginResp, errors.Error) {
-	//提现
-	_, err := u.userRepo.WithdrawMargin(c, req)
+//	@Router			/user/marginApplication [post]
+func (u *UserSvc) WithdrawMarginApplication(c context.Context, req *WithdrawMarginApplicationReq) (*WithdrawMarginApplicationResp, errors.Error) {
+	//添加提现申请
+	_, err := u.userRepo.WithdrawMarginApplication(c, req)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +232,7 @@ func (u *UserSvc) WithdrawMargin(c context.Context, req *WithdrawMarginReq) (*Wi
 		OperateType: MARGIN_OP_WITHDRAW,
 	})
 
-	return &WithdrawMarginResp{}, nil
+	return &WithdrawMarginApplicationResp{}, nil
 }
 
 //	@Summary		扣除保证金
@@ -297,4 +298,32 @@ func (u *UserSvc) UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) 
 	_, err = u.userRepo.UpdateUserStatus(c, req)
 
 	return &UpdateUserStatusResp{}, err
+}
+
+//	@Summary		审核保证金退回申请
+//	@Description	管理员审核保证金退回申请
+//	@Tags			user模块
+//	@Accept			json
+//	@Produce		json
+//	@Param			request			body		ReviewMarginWithdrawApplicationReq	true	"请求"
+//	@Param			Authorization	header		string								true	"token"
+//	@Success		200				{object}	ReviewMarginWithdrawApplicationResp
+//	@Failure		400				{object}	response.response
+//	@Failure		404				{object}	response.response
+//	@Failure		500				{object}	response.response
+//	@Router			/user/marginApplication [put]
+func (u *UserSvc) ReviewMarginWithdrawApplication(c context.Context, req *ReviewMarginWithdrawApplicationReq) (*ReviewMarginWithdrawApplicationResp, errors.Error) {
+	//只有管理员可以审核提现申请
+	user, err := u.userRepo.GetUserById(c, req.AdminId)
+	if err != nil {
+		return nil, err
+	}
+	if user.Role.Code != ROLE_ADMIN {
+		return nil, errors.New(errors.ROLE_ERROR, "只有管理员可以审核提现申请")
+	}
+
+	//提现
+	_, err = u.userRepo.ReviewMarginWithdrawApplication(c, req)
+
+	return &ReviewMarginWithdrawApplicationResp{}, err
 }

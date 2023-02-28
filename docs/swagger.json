@@ -191,7 +191,7 @@
                 "tags": [
                     "order模块"
                 ],
-                "summary": "获取所有需求",
+                "summary": "获取自己发布的or接手的所有需求",
                 "parameters": [
                     {
                         "type": "number",
@@ -616,6 +616,78 @@
             }
         },
         "/order/reporter": {
+            "get": {
+                "description": "查询订单详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "order模块"
+                ],
+                "summary": "查询订单详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "每页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "pageNum",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "开始时间",
+                        "name": "startTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束时间",
+                        "name": "endTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/orderService.ListReportersResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "举报",
                 "consumes": [
@@ -1230,63 +1302,6 @@
                     }
                 }
             },
-            "put": {
-                "description": "乙方保证金提现",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user模块"
-                ],
-                "summary": "保证金提现",
-                "parameters": [
-                    {
-                        "description": "请求",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/userService.WithdrawMarginReq"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/userService.WithdrawMarginResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.response"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "乙方缴纳保证金",
                 "consumes": [
@@ -1379,6 +1394,122 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/userService.DeductMarginResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/marginApplication": {
+            "put": {
+                "description": "管理员审核保证金退回申请",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user模块"
+                ],
+                "summary": "审核保证金退回申请",
+                "parameters": [
+                    {
+                        "description": "请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/userService.ReviewMarginWithdrawApplicationReq"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/userService.ReviewMarginWithdrawApplicationResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "乙方申请保证金退回",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user模块"
+                ],
+                "summary": "保证金退回",
+                "parameters": [
+                    {
+                        "description": "请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/userService.WithdrawMarginApplicationReq"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/userService.WithdrawMarginApplicationResp"
                         }
                     },
                     "400": {
@@ -1636,6 +1767,22 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/orderService.Order"
+                    }
+                },
+                "total": {
+                    "description": "总条数",
+                    "type": "integer"
+                }
+            }
+        },
+        "orderService.ListReportersResp": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/orderService.Reporter"
                     }
                 },
                 "total": {
@@ -1975,6 +2122,39 @@
         "orderService.ReportOrderResp": {
             "type": "object"
         },
+        "orderService.Reporter": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "举报描述",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "orderId": {
+                    "description": "订单uuid",
+                    "type": "string"
+                },
+                "reportedPerson": {
+                    "description": "被举报人uuid",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "whistleblower": {
+                    "description": "举报人uuid",
+                    "type": "string"
+                }
+            }
+        },
         "orderService.UpdateCostReq": {
             "type": "object",
             "properties": {
@@ -2199,6 +2379,34 @@
                 }
             }
         },
+        "userService.ReviewMarginWithdrawApplicationReq": {
+            "type": "object",
+            "properties": {
+                "adminId": {
+                    "description": "管理员uuid",
+                    "type": "string"
+                },
+                "amount": {
+                    "description": "申请金额",
+                    "type": "integer"
+                },
+                "applicationId": {
+                    "description": "申请记录uuid",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "审核结果：1=同意，2=拒绝",
+                    "type": "integer"
+                },
+                "userId": {
+                    "description": "申请人uuid",
+                    "type": "string"
+                }
+            }
+        },
+        "userService.ReviewMarginWithdrawApplicationResp": {
+            "type": "object"
+        },
         "userService.Role": {
             "type": "object",
             "properties": {
@@ -2297,7 +2505,7 @@
                 }
             }
         },
-        "userService.WithdrawMarginReq": {
+        "userService.WithdrawMarginApplicationReq": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -2310,7 +2518,7 @@
                 }
             }
         },
-        "userService.WithdrawMarginResp": {
+        "userService.WithdrawMarginApplicationResp": {
             "type": "object"
         }
     }

@@ -368,3 +368,15 @@ type DeleteOrderReq struct {
 
 type DeleteOrderResp struct {
 }
+
+type ListReportersReq struct {
+	PageSize  int       `json:"pageSize"`  //每页条数
+	PageNum   int       `json:"pageNum"`   //页数
+	StartTime time.Time `json:"startTime"` //开始时间
+	EndTime   time.Time `json:"endTime"`   //结束时间
+}
+
+type ListReportersResp struct {
+	Total int64       `json:"total"` //总条数
+	List  []*Reporter `json:"list"`  //数据
+}

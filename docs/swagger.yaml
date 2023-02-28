@@ -125,6 +125,17 @@ definitions:
         description: 总条数
         type: integer
     type: object
+  orderService.ListReportersResp:
+    properties:
+      list:
+        description: 数据
+        items:
+          $ref: '#/definitions/orderService.Reporter'
+        type: array
+      total:
+        description: 总条数
+        type: integer
+    type: object
   orderService.Order:
     properties:
       cost:
@@ -346,6 +357,29 @@ definitions:
     type: object
   orderService.ReportOrderResp:
     type: object
+  orderService.Reporter:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        description: 举报描述
+        type: string
+      id:
+        type: integer
+      orderId:
+        description: 订单uuid
+        type: string
+      reportedPerson:
+        description: 被举报人uuid
+        type: string
+      updatedAt:
+        type: string
+      whistleblower:
+        description: 举报人uuid
+        type: string
+    type: object
   orderService.UpdateCostReq:
     properties:
       cost:
@@ -499,6 +533,26 @@ definitions:
       msg:
         type: string
     type: object
+  userService.ReviewMarginWithdrawApplicationReq:
+    properties:
+      adminId:
+        description: 管理员uuid
+        type: string
+      amount:
+        description: 申请金额
+        type: integer
+      applicationId:
+        description: 申请记录uuid
+        type: string
+      status:
+        description: 审核结果：1=同意，2=拒绝
+        type: integer
+      userId:
+        description: 申请人uuid
+        type: string
+    type: object
+  userService.ReviewMarginWithdrawApplicationResp:
+    type: object
   userService.Role:
     properties:
       code:
@@ -566,7 +620,7 @@ definitions:
         description: 用户uuid
         type: string
     type: object
-  userService.WithdrawMarginReq:
+  userService.WithdrawMarginApplicationReq:
     properties:
       amount:
         description: 提现金额
@@ -575,7 +629,7 @@ definitions:
         description: 用户uuid
         type: string
     type: object
-  userService.WithdrawMarginResp:
+  userService.WithdrawMarginApplicationResp:
     type: object
 info:
   contact: {}
@@ -751,7 +805,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.response'
-      summary: 获取所有需求
+      summary: 获取自己发布的or接手的所有需求
       tags:
       - order模块
   /order/cost:
@@ -987,6 +1041,54 @@ paths:
       tags:
       - order模块
   /order/reporter:
+    get:
+      consumes:
+      - application/json
+      description: 查询订单详情
+      parameters:
+      - description: 每页条数
+        in: query
+        name: pageSize
+        type: string
+      - description: pageNum
+        in: query
+        name: pageNum
+        type: string
+      - description: 开始时间
+        in: query
+        name: startTime
+        type: string
+      - description: 结束时间
+        in: query
+        name: endTime
+        type: string
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orderService.ListReportersResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 查询订单详情
+      tags:
+      - order模块
     post:
       consumes:
       - application/json
@@ -1469,17 +1571,18 @@ paths:
       summary: 缴纳保证金
       tags:
       - user模块
-    put:
+  /user/marginApplication:
+    post:
       consumes:
       - application/json
-      description: 乙方保证金提现
+      description: 乙方申请保证金退回
       parameters:
       - description: 请求
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/userService.WithdrawMarginReq'
+          $ref: '#/definitions/userService.WithdrawMarginApplicationReq'
       - description: token
         in: header
         name: Authorization
@@ -1491,7 +1594,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/userService.WithdrawMarginResp'
+            $ref: '#/definitions/userService.WithdrawMarginApplicationResp'
         "400":
           description: Bad Request
           schema:
@@ -1504,7 +1607,45 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.response'
-      summary: 保证金提现
+      summary: 保证金退回
+      tags:
+      - user模块
+    put:
+      consumes:
+      - application/json
+      description: 管理员审核保证金退回申请
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/userService.ReviewMarginWithdrawApplicationReq'
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userService.ReviewMarginWithdrawApplicationResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.response'
+      summary: 审核保证金退回申请
       tags:
       - user模块
   /user/status:

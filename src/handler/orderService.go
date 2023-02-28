@@ -30,6 +30,7 @@ func RegisterOrderHandlers(r *gin.RouterGroup) {
 	r.GET("/detail", GetOrderDetailHandler)                            //查询需求详情
 	r.POST("/pickupOrder", PickupOrderHandler)                         //接单
 	r.DELETE("", DeleteOrderHandler)                                   //删除需求
+	r.GET("/reporter", ListReportsHandler)                             //查看举报
 }
 
 func ListOrdersHandler(c *gin.Context) {
@@ -335,5 +336,26 @@ func DeleteOrderHandler(c *gin.Context) {
 	}
 
 	resp, err := OrderSvc.PickupOrder(c, &req)
+	response.Success(c, err, resp)
+}
+
+func ListReportsHandler(c *gin.Context) {
+	req := orderService.ListReportersReq{
+		PageSize:  c.GetInt("pageSize"),
+		PageNum:   c.GetInt("pageNum"),
+		StartTime: c.GetTime("startTime"),
+		EndTime:   c.GetTime("endTime"),
+	}
+	if req.PageSize <= 0 || req.PageNum <= 0 {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := OrderSvc.ListReporters(c, &req)
 	response.Success(c, err, resp)
 }

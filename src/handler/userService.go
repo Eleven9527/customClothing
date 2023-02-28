@@ -15,15 +15,16 @@ var UserSvc userService.UserService
 func RegisterUserHandlers(r *gin.RouterGroup) {
 	UserSvc = userService.MakeUserService()
 
-	r.GET("/authcode", GetAuthCodeHandler)    //获取验证码
-	r.POST("", RegisterHandler)               //注册用户
-	r.POST("/login", LoginHandler)            //登录
-	r.POST("/kyc", KycHandler)                //kyc
-	r.POST("/margin", PayMarginHandler)       //缴纳保证金
-	r.GET("/margin", GetMarginHandler)        //查询保证金
-	r.PUT("/margin", WithdrawHandler)         //保证金提现
-	r.DELETE("/margin", DeductHandler)        //扣除保证金
-	r.PUT("/status", UpdateUserStatusHandler) //拉黑、解除拉黑用户
+	r.GET("/authcode", GetAuthCodeHandler)                              //获取验证码
+	r.POST("", RegisterHandler)                                         //注册用户
+	r.POST("/login", LoginHandler)                                      //登录
+	r.POST("/kyc", KycHandler)                                          //kyc
+	r.POST("/margin", PayMarginHandler)                                 //缴纳保证金
+	r.GET("/margin", GetMarginHandler)                                  //查询保证金
+	r.POST("/marginApplication", WithdrawApplicationHandler)            //申请保证金提现
+	r.DELETE("/margin", DeductHandler)                                  //扣除保证金
+	r.PUT("/status", UpdateUserStatusHandler)                           //拉黑、解除拉黑用户
+	r.PUT("/marginApplication", ReviewMarginWithdrawApplicationHandler) //管理员审核保证金提现
 }
 
 func RegisterHandler(c *gin.Context) {
@@ -145,8 +146,8 @@ func GetMarginHandler(c *gin.Context) {
 	response.Success(c, err, resp)
 }
 
-func WithdrawHandler(c *gin.Context) {
-	req := userService.KycReq{}
+func WithdrawApplicationHandler(c *gin.Context) {
+	req := userService.WithdrawMarginApplicationReq{}
 	if err := c.ShouldBind(&req); err != nil {
 		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
 	}
@@ -155,12 +156,8 @@ func WithdrawHandler(c *gin.Context) {
 		response.RespError(http.StatusBadRequest, c, errors.USER_UUID_ERROR, "uuid长度错误")
 	}
 
-	if !utils.VerifyMobileFormat(req.Phone) {
-		response.RespError(http.StatusBadRequest, c, errors.USER_PHONE_ERROR, "手机号格式错误")
-	}
-
-	if len(req.Name) < 2 || len(req.Name) > 10 {
-		response.RespError(http.StatusBadRequest, c, errors.USER_NAME_LENGTH_EEEOR, "姓名长度错误")
+	if req.Amount < 0 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_NAME_LENGTH_EEEOR, "提现金额异常")
 	}
 
 	//验证用户是否登录
@@ -169,12 +166,12 @@ func WithdrawHandler(c *gin.Context) {
 		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
 	}
 
-	resp, err := UserSvc.Kyc(c, &req)
+	resp, err := UserSvc.WithdrawMarginApplication(c, &req)
 	response.Success(c, err, resp)
 }
 
 func DeductHandler(c *gin.Context) {
-	req := userService.KycReq{}
+	req := userService.DeductMarginReq{}
 	if err := c.ShouldBind(&req); err != nil {
 		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
 	}
@@ -183,12 +180,8 @@ func DeductHandler(c *gin.Context) {
 		response.RespError(http.StatusBadRequest, c, errors.USER_UUID_ERROR, "uuid长度错误")
 	}
 
-	if !utils.VerifyMobileFormat(req.Phone) {
-		response.RespError(http.StatusBadRequest, c, errors.USER_PHONE_ERROR, "手机号格式错误")
-	}
-
-	if len(req.Name) < 2 || len(req.Name) > 10 {
-		response.RespError(http.StatusBadRequest, c, errors.USER_NAME_LENGTH_EEEOR, "姓名长度错误")
+	if req.Amount < 0 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_NAME_LENGTH_EEEOR, "扣除金额异常")
 	}
 
 	//验证用户是否登录
@@ -197,7 +190,7 @@ func DeductHandler(c *gin.Context) {
 		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
 	}
 
-	resp, err := UserSvc.Kyc(c, &req)
+	resp, err := UserSvc.DeductMargin(c, &req)
 	response.Success(c, err, resp)
 }
 
@@ -214,5 +207,29 @@ func UpdateUserStatusHandler(c *gin.Context) {
 	}
 
 	resp, err := UserSvc.UpdateUserStatus(c, &req)
+	response.Success(c, err, resp)
+}
+
+func ReviewMarginWithdrawApplicationHandler(c *gin.Context) {
+	req := userService.WithdrawMarginApplicationReq{}
+	if err := c.ShouldBind(&req); err != nil {
+		response.RespError(http.StatusBadRequest, c, errors.REQ_PARAMETER_ERROR, "参数错误")
+	}
+
+	if len(req.UserId) == 0 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_UUID_ERROR, "uuid长度错误")
+	}
+
+	if req.Amount < 0 {
+		response.RespError(http.StatusBadRequest, c, errors.USER_NAME_LENGTH_EEEOR, "提现金额异常")
+	}
+
+	//验证用户是否登录
+	err := UserSvc.VerifyToken([]byte(c.Query(config.Cfg().TokenCfg.HeaderKey)))
+	if err != nil {
+		response.RespError(http.StatusBadRequest, c, err.Code(), err.Msg())
+	}
+
+	resp, err := UserSvc.WithdrawMarginApplication(c, &req)
 	response.Success(c, err, resp)
 }
