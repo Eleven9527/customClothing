@@ -322,7 +322,7 @@ func (o *OrderSvc) GetOrderSum(ctx context.Context, req *GetOrderSumReq) (*GetOr
 //	@Failure		400				{object}	response.response
 //	@Failure		404				{object}	response.response
 //	@Failure		500				{object}	response.response
-//	@Router			/order/sum [post]
+//	@Router			/order [post]
 func (o *OrderSvc) PublishOrder(ctx context.Context, req *PublishOrderReq) (*PublishOrderResp, errors.Error) {
 	return o.orderRepo.AddOrder(ctx, req)
 }

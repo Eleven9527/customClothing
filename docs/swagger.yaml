@@ -1280,44 +1280,6 @@ paths:
       summary: 查询总交易订单次数+总交易金额
       tags:
       - order模块
-    post:
-      consumes:
-      - application/json
-      description: 甲方发布需求
-      parameters:
-      - description: 请求
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/orderService.PublishOrderReq'
-      - description: token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/orderService.PublishOrderResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.response'
-      summary: 发布需求
-      tags:
-      - order模块
   /user:
     post:
       consumes:
