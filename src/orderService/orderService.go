@@ -383,7 +383,7 @@ func (o *OrderSvc) PickupOrder(ctx context.Context, req *PickupOrderReq) (*Picku
 //	@Failure		400				{object}	response.response
 //	@Failure		404				{object}	response.response
 //	@Failure		500				{object}	response.response
-//	@Router			/order [post]
+//	@Router			/order [delete]
 func (o *OrderSvc) DeleteOrder(ctx context.Context, req *DeleteOrderReq) (*DeleteOrderResp, errors.Error) {
 	//只有管理员可以删除订单
 	user, err := o.userRepo.GetUserById(ctx, req.AdminId)
