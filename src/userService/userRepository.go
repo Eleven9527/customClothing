@@ -5,6 +5,7 @@ import (
 	"customClothing/src/db"
 	errors "customClothing/src/error"
 	"customClothing/src/utils/uuid"
+	"fmt"
 	"github.com/jinzhu/gorm"
 )
 
@@ -37,7 +38,7 @@ func MakeUserRepoService() UserRepoService {
 func (r *userRepoSvc) AddUser(c context.Context, req *RegisterUserReq) (*RegisterUserResp, errors.Error) {
 	//检查用户是否已存在
 	var count int64
-	if err := r.userDb.Where("phone = ?", req.Phone).Count(&count); err != nil {
+	if err := r.userDb.Where("phone = ?", req.Phone).Count(&count).Error; err != nil {
 		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 
@@ -46,7 +47,16 @@ func (r *userRepoSvc) AddUser(c context.Context, req *RegisterUserReq) (*Registe
 	}
 
 	//新增用户
-	if err := r.userDb.Create(&req).Error; err != nil {
+	user := User{
+		UserId:      uuid.BuildUuid(),
+		DisplayName: req.DisplayName,
+		Password:    req.Password,
+		Avatar:      "", //todo
+		RoleCode:    ROLE_NORMAL,
+		Phone:       req.Phone,
+	}
+	if err := r.userDb.Create(&user).Error; err != nil {
+		fmt.Println(err)
 		return nil, errors.New(errors.INTERNAL_ERROR, "")
 	}
 

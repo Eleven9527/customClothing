@@ -2419,7 +2419,7 @@ const docTemplate = `{
         "userService.ReviewMarginWithdrawApplicationResp": {
             "type": "object"
         },
-        "userService.Role": {
+        "userService.RoleCode": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2504,7 +2504,7 @@ const docTemplate = `{
                     "description": "角色",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/userService.Role"
+                            "$ref": "#/definitions/userService.RoleCode"
                         }
                     ]
                 },

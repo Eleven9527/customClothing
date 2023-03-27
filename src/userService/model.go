@@ -40,7 +40,7 @@ type User struct {
 	DisplayName string `json:"displayName" gorm:"comment:'昵称'"` //昵称
 	Password    string `json:"password" gorm:"comment:'密码'"`    //密码
 	Avatar      string `json:"avatar" gorm:"comment:'头像图片地址'"`  //头像图片地址
-	Role        Role   `json:"role" gorm:"comment:'角色'"`        //角色
+	RoleCode    int    `json:"roleCode" gorm:"comment:'角色代码'"`  //角色
 	Margin      uint   `json:"margin" gorm:"comment:'保证金'"`     //保证金
 	Phone       string `json:"phone" gorm:"comment:'手机号'"`      //手机号
 	Ban         bool   `json:"ban" gorm:"comment:'用户是否被拉黑'"`    //用户是否被拉黑

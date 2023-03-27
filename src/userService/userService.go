@@ -34,17 +34,17 @@ func MakeUserService() UserService {
 	}
 }
 
-//	@Summary		注册用户
-//	@Description	注册用户
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		RegisterUserReq	true	"请求"
-//	@Success		200		{object}	RegisterUserResp
-//	@Failure		400		{object}	response.response
-//	@Failure		404		{object}	response.response
-//	@Failure		500		{object}	response.response
-//	@Router			/user [post]
+// @Summary		注册用户
+// @Description	注册用户
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			request	body		RegisterUserReq	true	"请求"
+// @Success		200		{object}	RegisterUserResp
+// @Failure		400		{object}	response.response
+// @Failure		404		{object}	response.response
+// @Failure		500		{object}	response.response
+// @Router			/user [post]
 func (u *UserSvc) RegisterUser(c context.Context, req *RegisterUserReq) (*RegisterUserResp, errors.Error) {
 	return u.userRepo.AddUser(c, req)
 
@@ -67,17 +67,17 @@ func (u *UserSvc) GetAuthCode(c context.Context, req *GetAuthCodeReq) (*GetAuthC
 	return &GetAuthCodeResp{AuthCode: "12345"}, nil
 }
 
-//	@Summary		登录
-//	@Description	登录
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		LoginReq	true	"请求"
-//	@Success		200		{object}	LoginResp
-//	@Failure		400		{object}	response.response
-//	@Failure		404		{object}	response.response
-//	@Failure		500		{object}	response.response
-//	@Router			/user/login [post]
+// @Summary		登录
+// @Description	登录
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			request	body		LoginReq	true	"请求"
+// @Success		200		{object}	LoginResp
+// @Failure		400		{object}	response.response
+// @Failure		404		{object}	response.response
+// @Failure		500		{object}	response.response
+// @Router			/user/login [post]
 func (u *UserSvc) Login(c context.Context, req *LoginReq) (*LoginResp, errors.Error) {
 	//检测用户是否存在
 	user, err := u.userRepo.GetUserByPhone(c, req.Phone)
@@ -103,18 +103,18 @@ func (u *UserSvc) Login(c context.Context, req *LoginReq) (*LoginResp, errors.Er
 	}, nil
 }
 
-//	@Summary		Kyc
-//	@Description	Kyc
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			request			body		KycReq	true	"请求"
-//	@Param			Authorization	header		string	true	"token"
-//	@Success		200				{object}	KycResp
-//	@Failure		400				{object}	response.response
-//	@Failure		404				{object}	response.response
-//	@Failure		500				{object}	response.response
-//	@Router			/user/kyc [post]
+// @Summary		Kyc
+// @Description	Kyc
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			request			body		KycReq	true	"请求"
+// @Param			Authorization	header		string	true	"token"
+// @Success		200				{object}	KycResp
+// @Failure		400				{object}	response.response
+// @Failure		404				{object}	response.response
+// @Failure		500				{object}	response.response
+// @Router			/user/kyc [post]
 func (u *UserSvc) Kyc(c context.Context, req *KycReq) (*KycResp, errors.Error) {
 	role, err := u.userRepo.GetRoleByCode(c, req.RoleCode)
 	if err != nil {
@@ -152,18 +152,18 @@ func (u *UserSvc) VerifyToken(tk []byte) errors.Error {
 	return nil
 }
 
-//	@Summary		缴纳保证金
-//	@Description	乙方缴纳保证金
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			request			body		PayMarginReq	true	"请求"
-//	@Param			Authorization	header		string			true	"token"
-//	@Success		200				{object}	PayMarginResp
-//	@Failure		400				{object}	response.response
-//	@Failure		404				{object}	response.response
-//	@Failure		500				{object}	response.response
-//	@Router			/user/margin [post]
+// @Summary		缴纳保证金
+// @Description	乙方缴纳保证金
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			request			body		PayMarginReq	true	"请求"
+// @Param			Authorization	header		string			true	"token"
+// @Success		200				{object}	PayMarginResp
+// @Failure		400				{object}	response.response
+// @Failure		404				{object}	response.response
+// @Failure		500				{object}	response.response
+// @Router			/user/margin [post]
 func (u *UserSvc) PayMargin(c context.Context, req *PayMarginReq) (*PayMarginResp, errors.Error) {
 	//修改保证金余额
 	_, err := u.userRepo.AddMargin(c, &AddMarginReq{
@@ -185,18 +185,18 @@ func (u *UserSvc) PayMargin(c context.Context, req *PayMarginReq) (*PayMarginRes
 	return &PayMarginResp{}, err
 }
 
-//	@Summary		查询保证金
-//	@Description	查询保证金
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			userId			query		string	true	"用户uuid"
-//	@Param			Authorization	header		string	true	"token"
-//	@Success		200				{object}	GetMarginResp
-//	@Failure		400				{object}	response.response
-//	@Failure		404				{object}	response.response
-//	@Failure		500				{object}	response.response
-//	@Router			/user/margin [get]
+// @Summary		查询保证金
+// @Description	查询保证金
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			userId			query		string	true	"用户uuid"
+// @Param			Authorization	header		string	true	"token"
+// @Success		200				{object}	GetMarginResp
+// @Failure		400				{object}	response.response
+// @Failure		404				{object}	response.response
+// @Failure		500				{object}	response.response
+// @Router			/user/margin [get]
 func (u *UserSvc) GetMargin(c context.Context, req *GetMarginReq) (*GetMarginResp, errors.Error) {
 	amount, err := u.userRepo.GetMargin(c, req.UserId)
 	if err != nil {
@@ -206,18 +206,18 @@ func (u *UserSvc) GetMargin(c context.Context, req *GetMarginReq) (*GetMarginRes
 	return &GetMarginResp{Amount: amount}, nil
 }
 
-//	@Summary		保证金退回
-//	@Description	乙方申请保证金退回
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			request			body		WithdrawMarginApplicationReq	true	"请求"
-//	@Param			Authorization	header		string							true	"token"
-//	@Success		200				{object}	WithdrawMarginApplicationResp
-//	@Failure		400				{object}	response.response
-//	@Failure		404				{object}	response.response
-//	@Failure		500				{object}	response.response
-//	@Router			/user/marginApplication [post]
+// @Summary		保证金退回
+// @Description	乙方申请保证金退回
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			request			body		WithdrawMarginApplicationReq	true	"请求"
+// @Param			Authorization	header		string							true	"token"
+// @Success		200				{object}	WithdrawMarginApplicationResp
+// @Failure		400				{object}	response.response
+// @Failure		404				{object}	response.response
+// @Failure		500				{object}	response.response
+// @Router			/user/marginApplication [post]
 func (u *UserSvc) WithdrawMarginApplication(c context.Context, req *WithdrawMarginApplicationReq) (*WithdrawMarginApplicationResp, errors.Error) {
 	//添加提现申请
 	_, err := u.userRepo.WithdrawMarginApplication(c, req)
@@ -235,25 +235,25 @@ func (u *UserSvc) WithdrawMarginApplication(c context.Context, req *WithdrawMarg
 	return &WithdrawMarginApplicationResp{}, nil
 }
 
-//	@Summary		扣除保证金
-//	@Description	管理员扣除保证金
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			request			body		DeductMarginReq	true	"请求"
-//	@Param			Authorization	header		string			true	"token"
-//	@Success		200				{object}	DeductMarginResp
-//	@Failure		400				{object}	response.response
-//	@Failure		404				{object}	response.response
-//	@Failure		500				{object}	response.response
-//	@Router			/user/margin [delete]
+// @Summary		扣除保证金
+// @Description	管理员扣除保证金
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			request			body		DeductMarginReq	true	"请求"
+// @Param			Authorization	header		string			true	"token"
+// @Success		200				{object}	DeductMarginResp
+// @Failure		400				{object}	response.response
+// @Failure		404				{object}	response.response
+// @Failure		500				{object}	response.response
+// @Router			/user/margin [delete]
 func (u *UserSvc) DeductMargin(c context.Context, req *DeductMarginReq) (*DeductMarginResp, errors.Error) {
 	//只有管理员可以扣除保证金
 	user, err := u.userRepo.GetUserById(c, req.UserId)
 	if err != nil {
 		return nil, err
 	}
-	if user.Role.Code != ROLE_ADMIN {
+	if user.RoleCode != ROLE_ADMIN {
 		return nil, errors.New(errors.ROLE_ERROR, "只有管理员可以扣除保证金")
 	}
 
@@ -273,25 +273,25 @@ func (u *UserSvc) DeductMargin(c context.Context, req *DeductMarginReq) (*Deduct
 	return &DeductMarginResp{}, nil
 }
 
-//	@Summary		拉黑、解除拉黑用户
-//	@Description	管理员拉黑、解除拉黑用户
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			request			body		UpdateUserStatusReq	true	"请求"
-//	@Param			Authorization	header		string				true	"token"
-//	@Success		200				{object}	UpdateUserStatusResp
-//	@Failure		400				{object}	response.response
-//	@Failure		404				{object}	response.response
-//	@Failure		500				{object}	response.response
-//	@Router			/user/status [put]
+// @Summary		拉黑、解除拉黑用户
+// @Description	管理员拉黑、解除拉黑用户
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			request			body		UpdateUserStatusReq	true	"请求"
+// @Param			Authorization	header		string				true	"token"
+// @Success		200				{object}	UpdateUserStatusResp
+// @Failure		400				{object}	response.response
+// @Failure		404				{object}	response.response
+// @Failure		500				{object}	response.response
+// @Router			/user/status [put]
 func (u *UserSvc) UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) (*UpdateUserStatusResp, errors.Error) {
 	//只有管理员可以拉黑用户
 	user, err := u.userRepo.GetUserById(c, req.UserId)
 	if err != nil {
 		return nil, err
 	}
-	if user.Role.Code != ROLE_ADMIN {
+	if user.RoleCode != ROLE_ADMIN {
 		return nil, errors.New(errors.ROLE_ERROR, "只有管理员可以拉黑用户")
 	}
 
@@ -300,25 +300,25 @@ func (u *UserSvc) UpdateUserStatus(c context.Context, req *UpdateUserStatusReq) 
 	return &UpdateUserStatusResp{}, err
 }
 
-//	@Summary		审核保证金退回申请
-//	@Description	管理员审核保证金退回申请
-//	@Tags			user模块
-//	@Accept			json
-//	@Produce		json
-//	@Param			request			body		ReviewMarginWithdrawApplicationReq	true	"请求"
-//	@Param			Authorization	header		string								true	"token"
-//	@Success		200				{object}	ReviewMarginWithdrawApplicationResp
-//	@Failure		400				{object}	response.response
-//	@Failure		404				{object}	response.response
-//	@Failure		500				{object}	response.response
-//	@Router			/user/marginApplication [put]
+// @Summary		审核保证金退回申请
+// @Description	管理员审核保证金退回申请
+// @Tags			user模块
+// @Accept			json
+// @Produce		json
+// @Param			request			body		ReviewMarginWithdrawApplicationReq	true	"请求"
+// @Param			Authorization	header		string								true	"token"
+// @Success		200				{object}	ReviewMarginWithdrawApplicationResp
+// @Failure		400				{object}	response.response
+// @Failure		404				{object}	response.response
+// @Failure		500				{object}	response.response
+// @Router			/user/marginApplication [put]
 func (u *UserSvc) ReviewMarginWithdrawApplication(c context.Context, req *ReviewMarginWithdrawApplicationReq) (*ReviewMarginWithdrawApplicationResp, errors.Error) {
 	//只有管理员可以审核提现申请
 	user, err := u.userRepo.GetUserById(c, req.AdminId)
 	if err != nil {
 		return nil, err
 	}
-	if user.Role.Code != ROLE_ADMIN {
+	if user.RoleCode != ROLE_ADMIN {
 		return nil, errors.New(errors.ROLE_ERROR, "只有管理员可以审核提现申请")
 	}
 
