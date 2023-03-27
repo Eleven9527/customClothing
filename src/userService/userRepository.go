@@ -43,7 +43,7 @@ func (r *userRepoSvc) AddUser(c context.Context, req *RegisterUserReq) (*Registe
 	}
 
 	if count > 0 {
-		return nil, errors.New(errors.INTERNAL_ERROR, "用户已存在，请使用不同的手机号注册")
+		return nil, errors.New(errors.USER_EXIST, "用户已存在，请使用不同的手机号注册")
 	}
 
 	//新增用户
